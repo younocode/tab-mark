@@ -9,7 +9,24 @@ import {
 import type { Translations } from "../utils/i18n";
 import type { ViewId } from "../types";
 
-// Inline health icon to avoid adding to shared icons for a single use
+function IconRead({ size = 14 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2.5 3.5h4.5a2 2 0 0 1 2 2v8a2 2 0 0 0-2-2H2.5z" />
+      <path d="M13.5 3.5H9a2 2 0 0 0-2 2v8a2 2 0 0 1 2-2h4.5z" />
+    </svg>
+  );
+}
+
 function IconHealth({ size = 14 }: { size?: number }) {
   return (
     <svg
@@ -33,6 +50,7 @@ interface SidebarProps {
   t: Translations;
   tabCount: number;
   bookmarkCount: number;
+  readLaterCount: number;
   collapsed: boolean;
   onOpenSnapshots: () => void;
 }
@@ -43,6 +61,7 @@ export const Sidebar = memo(function Sidebar({
   t,
   tabCount,
   bookmarkCount,
+  readLaterCount,
   collapsed,
   onOpenSnapshots,
 }: SidebarProps) {
@@ -58,6 +77,12 @@ export const Sidebar = memo(function Sidebar({
       icon: IconBookmark,
       label: t.nav.bookmarks,
       badge: bookmarkCount,
+    },
+    {
+      id: "readlater",
+      icon: IconRead,
+      label: t.nav.readLater,
+      badge: readLaterCount,
     },
     {
       id: "health",

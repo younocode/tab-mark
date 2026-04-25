@@ -4,6 +4,7 @@ export interface Translations {
   nav: {
     tabs: string;
     bookmarks: string;
+    readLater: string;
     health: string;
     settings: string;
   };
@@ -56,6 +57,13 @@ export interface Translations {
     topSites: string;
     topSitesCount: string;
   };
+  readlater: {
+    unread: string;
+    read: string;
+    markRead: string;
+    remove: string;
+    empty: string;
+  };
   health: {
     title: string;
     subtitle: string;
@@ -102,6 +110,7 @@ const STRINGS: Record<string, Translations> = {
     nav: {
       tabs: "Tabs",
       bookmarks: "Bookmarks",
+      readLater: "Read Later",
       health: "Health Check",
       settings: "Settings",
     },
@@ -154,6 +163,13 @@ const STRINGS: Record<string, Translations> = {
       topSites: "Top sites",
       topSitesCount: "Sites count",
     },
+    readlater: {
+      unread: "Unread",
+      read: "Read",
+      markRead: "Mark read",
+      remove: "Remove",
+      empty: "Nothing here. Save articles to read later from the tab card menu.",
+    },
     health: {
       title: "Bookmark health",
       subtitle: "Find dead links and duplicates",
@@ -198,6 +214,7 @@ const STRINGS: Record<string, Translations> = {
     nav: {
       tabs: "标签页",
       bookmarks: "书签",
+      readLater: "稍后读",
       health: "健康检查",
       settings: "设置",
     },
@@ -249,6 +266,13 @@ const STRINGS: Record<string, Translations> = {
       defaultView: "默认视图",
       topSites: "常用网站",
       topSitesCount: "显示数量",
+    },
+    readlater: {
+      unread: "未读",
+      read: "已读",
+      markRead: "标记已读",
+      remove: "移除",
+      empty: "还没有内容。从标签页菜单中保存文章稍后阅读。",
     },
     health: {
       title: "书签健康",

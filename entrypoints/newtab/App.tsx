@@ -7,6 +7,7 @@ import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { TabsView } from "../../components/TabsView";
 import { BookmarksView } from "../../components/BookmarksView";
 import { HealthView } from "../../components/HealthView";
+import { ReadLaterView } from "../../components/ReadLaterView";
 import { CommandPalette } from "../../components/CommandPalette";
 import { SnapshotsModal } from "../../components/SnapshotsModal";
 import { usePreferenceStore } from "../../stores/preferenceStore";
@@ -17,6 +18,7 @@ import { useTopSitesStore } from "../../stores/topSitesStore";
 import { useBookmarkStore } from "../../stores/bookmarkStore";
 import { useSnapshotStore } from "../../stores/snapshotStore";
 import { useTagStore } from "../../stores/tagStore";
+import { useReadingListStore } from "../../stores/readingListStore";
 import { useTheme } from "../../hooks/useTheme";
 import { getTranslations } from "../../utils/i18n";
 import type { ViewId } from "../../types";
@@ -49,6 +51,7 @@ export default function App() {
       useTopSitesStore.getState().init(),
       useSnapshotStore.getState().init(),
       useTagStore.getState().init(),
+      useReadingListStore.getState().init(),
     ]);
   }, []);
 
@@ -116,7 +119,9 @@ export default function App() {
     setPref("lang", lang === "en" ? "zh" : "en");
   }, [lang, setPref]);
 
+  const readingList = useReadingListStore((s) => s.entries);
   const bookmarkCount = flattenBookmarks(bookmarkTree).length;
+  const readLaterCount = readingList.filter((e) => !e.hasBeenRead).length;
 
   return (
     <>
@@ -127,6 +132,7 @@ export default function App() {
           t={t}
           tabCount={tabs.length}
           bookmarkCount={bookmarkCount}
+          readLaterCount={readLaterCount}
           collapsed={sidebarCollapsed}
           onOpenSnapshots={() => setSnapshotsOpen(true)}
         />
@@ -157,6 +163,9 @@ export default function App() {
                 query={query}
                 t={t}
               />
+            )}
+            {view === "readlater" && (
+              <ReadLaterView t={t} />
             )}
             {view === "health" && (
               <HealthView t={t} />

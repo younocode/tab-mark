@@ -65,7 +65,21 @@ export interface UserPreferences {
   groupHeader: "row" | "card" | "pill";
 }
 
-export type ViewId = "tabs" | "bookmarks" | "health" | "settings";
+export type ViewId = "tabs" | "bookmarks" | "readlater" | "health" | "settings";
+
+export interface ReadingListEntry {
+  url: string;
+  title: string;
+  hasBeenRead: boolean;
+  lastUpdateTime: number;
+  creationTime: number;
+}
+
+export interface GroupingRule {
+  id: string;
+  name: string;
+  patterns: string[];
+}
 
 export interface Snapshot {
   id: string;

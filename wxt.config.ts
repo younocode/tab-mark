@@ -20,6 +20,8 @@ export default defineConfig({
       "storage",
       "sessions",
       "topSites",
+      "readingList",
+      "history",
     ],
   },
   vite: () => ({
