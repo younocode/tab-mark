@@ -15,7 +15,7 @@ function detectLang(): "en" | "zh" {
 const DEFAULTS: UserPreferences = {
   theme: "system",
   lang: detectLang(),
-  defaultView: "tabs",
+  defaultView: "home",
   topSitesStyle: "big",
   topSitesCount: 8,
   tabsLayout: "grid",
@@ -39,6 +39,9 @@ export const usePreferenceStore = create<PreferenceStore>((setState, getState) =
     const result = await chrome.storage.local.get(STORAGE_KEY);
     const saved = result[STORAGE_KEY] as Partial<UserPreferences> | undefined;
     if (saved) {
+      if (saved.defaultView === ("tabs" as string) || saved.defaultView === ("readlater" as string)) {
+        saved.defaultView = "home";
+      }
       setState(saved);
     }
 

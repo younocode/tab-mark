@@ -217,21 +217,6 @@ export function IconTag(p: IconProps) {
   );
 }
 
-export function IconCamera(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <>
-          <rect x="2" y="4.5" width="12" height="8.5" rx="1.4" />
-          <circle cx="8" cy="8.8" r="2.2" />
-          <path d="M5.5 4.5l1-1.5h3l1 1.5" />
-        </>
-      }
-    />
-  );
-}
-
 export function IconCheck(p: IconProps) {
   return <Icon {...p} d={<path d="M3 8.5L6.5 12l6.5-7" />} />;
 }

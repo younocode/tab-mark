@@ -31,6 +31,7 @@ import {
   IconClose,
   IconCopy,
   IconFolder,
+  IconSearch,
 } from "./icons";
 import { useBookmarkStore } from "../stores/bookmarkStore";
 import { flattenBookmarks, getFolderById, getFolders } from "../utils/bookmarks";
@@ -42,6 +43,7 @@ import type { Translations } from "../utils/i18n";
 
 interface BookmarksViewProps {
   query: string;
+  setQuery: (q: string) => void;
   t: Translations;
   showToast: (data: ToastData) => void;
 }
@@ -60,7 +62,7 @@ const dropAnimConfig = {
   }),
 };
 
-export function BookmarksView({ query, t, showToast }: BookmarksViewProps) {
+export function BookmarksView({ query, setQuery, t, showToast }: BookmarksViewProps) {
   const tree = useBookmarkStore((s) => s.tree);
   const initialized = useBookmarkStore((s) => s.initialized);
   const removeBookmark = useBookmarkStore((s) => s.removeBookmark);
@@ -315,6 +317,22 @@ export function BookmarksView({ query, t, showToast }: BookmarksViewProps) {
           />
         </aside>
         <main className="tm-bm-main">
+          <div className="tm-bm-search">
+            <IconSearch size={13} />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t.search.placeholderBookmarks}
+            />
+            {query && (
+              <button
+                className="tm-btn ghost icon sm"
+                onClick={() => setQuery("")}
+              >
+                <IconClose size={11} />
+              </button>
+            )}
+          </div>
           <div
             style={{
               display: "flex",

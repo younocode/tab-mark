@@ -50,11 +50,9 @@ export const TopSites = memo(function TopSites({
               className="tm-topsite big"
               onClick={() => onOpen(s.url)}
             >
-              <Favicon url={s.url} size={28} radius={6} />
-              <div>
-                <div>{s.title}</div>
-                <div className="ts-domain">{domain}</div>
-              </div>
+              <Favicon url={s.url} size={18} radius={4} />
+              <span className="ts-title">{s.title}</span>
+              <span className="ts-domain">{domain}</span>
             </button>
           );
         })}

@@ -56,7 +56,7 @@ export interface BookmarkNode {
 export interface UserPreferences {
   theme: "system" | "light" | "dark";
   lang: "en" | "zh";
-  defaultView: "tabs" | "bookmarks";
+  defaultView: "home" | "bookmarks";
   topSitesStyle: "big" | "small" | "compact" | "hidden";
   topSitesCount: number;
   tabsLayout: "grid" | "list";
@@ -65,7 +65,7 @@ export interface UserPreferences {
   groupHeader: "row" | "card" | "pill";
 }
 
-export type ViewId = "tabs" | "bookmarks" | "readlater" | "health" | "settings";
+export type ViewId = "home" | "bookmarks";
 
 export interface ReadingListEntry {
   url: string;
@@ -79,13 +79,6 @@ export interface GroupingRule {
   id: string;
   name: string;
   patterns: string[];
-}
-
-export interface Snapshot {
-  id: string;
-  name: string;
-  createdAt: number;
-  tabs: { url: string; title: string; groupName?: string }[];
 }
 
 export type LinkStatus =

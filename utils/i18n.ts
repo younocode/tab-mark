@@ -7,6 +7,13 @@ export interface Translations {
     readLater: string;
     health: string;
     settings: string;
+    home: string;
+  };
+  cmdActions: {
+    health: string;
+    healthDesc: string;
+    settings: string;
+    settingsDesc: string;
   };
   search: {
     placeholderTabs: string;
@@ -32,7 +39,6 @@ export interface Translations {
     showMore: string;
     showLess: string;
     duplicate: string;
-    snapshot: string;
     closeDuplicates: string;
   };
   bookmarks: {
@@ -106,17 +112,6 @@ export interface Translations {
     noEmptyFolders: string;
     emptyFolderCount: (n: number) => string;
   };
-  snapshots: {
-    title: string;
-    subtitle: string;
-    placeholder: string;
-    save: string;
-    restore: string;
-    rename: string;
-    delete: string;
-    count: (n: number) => string;
-    empty: string;
-  };
   contextMenu: {
     openNewTab: string;
     openNewWindow: string;
@@ -161,6 +156,13 @@ const STRINGS: Record<string, Translations> = {
       readLater: "Read Later",
       health: "Health Check",
       settings: "Settings",
+      home: "Home",
+    },
+    cmdActions: {
+      health: "Health Check",
+      healthDesc: "Scan bookmarks for dead links",
+      settings: "Settings",
+      settingsDesc: "Theme, layout, preferences",
     },
     search: {
       placeholderTabs: "Search tabs…",
@@ -186,7 +188,6 @@ const STRINGS: Record<string, Translations> = {
       showMore: "Show more",
       showLess: "Show less",
       duplicate: "Duplicate",
-      snapshot: "Snapshot",
       closeDuplicates: "Close duplicates",
     },
     bookmarks: {
@@ -272,17 +273,6 @@ const STRINGS: Record<string, Translations> = {
       noEmptyFolders: "No empty folders found.",
       emptyFolderCount: (n) => `${n} empty`,
     },
-    snapshots: {
-      title: "Snapshots",
-      subtitle: "Save and restore tab sessions",
-      placeholder: "Snapshot name…",
-      save: "Save",
-      restore: "Restore",
-      rename: "Rename",
-      delete: "Delete",
-      count: (n) => `${n} tab${n === 1 ? "" : "s"}`,
-      empty: "No snapshots yet.",
-    },
     contextMenu: {
       openNewTab: "Open in new tab",
       openNewWindow: "Open in new window",
@@ -325,6 +315,13 @@ const STRINGS: Record<string, Translations> = {
       readLater: "稍后读",
       health: "健康检查",
       settings: "设置",
+      home: "首页",
+    },
+    cmdActions: {
+      health: "健康检查",
+      healthDesc: "扫描书签中的死链",
+      settings: "设置",
+      settingsDesc: "主题、布局、偏好",
     },
     search: {
       placeholderTabs: "搜索标签页…",
@@ -350,7 +347,6 @@ const STRINGS: Record<string, Translations> = {
       showMore: "展开更多",
       showLess: "收起",
       duplicate: "重复",
-      snapshot: "快照",
       closeDuplicates: "关闭重复",
     },
     bookmarks: {
@@ -435,17 +431,6 @@ const STRINGS: Record<string, Translations> = {
       emptyFolders: "空文件夹",
       noEmptyFolders: "未发现空文件夹。",
       emptyFolderCount: (n) => `${n} 个空文件夹`,
-    },
-    snapshots: {
-      title: "快照",
-      subtitle: "保存与恢复标签页会话",
-      placeholder: "快照名称…",
-      save: "保存",
-      restore: "恢复",
-      rename: "重命名",
-      delete: "删除",
-      count: (n) => `${n} 个标签`,
-      empty: "还没有快照。",
     },
     contextMenu: {
       openNewTab: "在新标签页中打开",

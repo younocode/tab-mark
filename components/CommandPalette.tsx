@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Favicon } from "./Favicon";
-import { IconSearch, IconExternal, IconClock, IconBookmark } from "./icons";
+import { IconSearch, IconExternal, IconClock, IconBookmark, IconSettings } from "./icons";
 import { useTabStore } from "../stores/tabStore";
 import { useBookmarkStore } from "../stores/bookmarkStore";
 import { useReadingListStore } from "../stores/readingListStore";
@@ -10,8 +10,11 @@ import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import type { Translations } from "../utils/i18n";
 import type { ToastData } from "./Toast";
 
+export type PaletteAction = "health" | "settings";
+
 interface CommandPaletteProps {
   onClose: () => void;
+  onAction?: (action: PaletteAction) => void;
   t: Translations;
   showToast: (data: ToastData) => void;
 }
@@ -21,11 +24,31 @@ interface SearchResult {
   title: string;
   url: string;
   domain: string;
-  kind: "tab" | "bookmark" | "readlater" | "history";
+  kind: "tab" | "bookmark" | "readlater" | "history" | "action";
+  action?: PaletteAction;
+  description?: string;
+}
+
+function IconHealth({ size = 14 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 8h2.5l1.5-3 2 6 1.5-3H14" />
+    </svg>
+  );
 }
 
 export function CommandPalette({
   onClose,
+  onAction,
   t,
   showToast,
 }: CommandPaletteProps) {
@@ -124,14 +147,45 @@ export function CommandPalette({
       });
   }, [debouncedQ]);
 
+  const actionItems = useMemo((): SearchResult[] => {
+    const all: SearchResult[] = [
+      {
+        id: "action-health",
+        title: t.cmdActions.health,
+        url: "",
+        domain: t.cmdActions.healthDesc,
+        kind: "action",
+        action: "health",
+        description: t.cmdActions.healthDesc,
+      },
+      {
+        id: "action-settings",
+        title: t.cmdActions.settings,
+        url: "",
+        domain: t.cmdActions.settingsDesc,
+        kind: "action",
+        action: "settings",
+        description: t.cmdActions.settingsDesc,
+      },
+    ];
+    if (!debouncedQ) return all;
+    const lq = debouncedQ.toLowerCase();
+    return all.filter(
+      (a) =>
+        a.title.toLowerCase().includes(lq) ||
+        a.description!.toLowerCase().includes(lq),
+    );
+  }, [t, debouncedQ]);
+
   const groups: [string, SearchResult[]][] = [
     [t.search.grpOpen, tabResults],
     [t.search.grpBookmarks, bmResults],
     [t.search.grpReadLater, rlResults],
     [t.search.grpHistory, historyResults],
+    ["Actions", actionItems],
   ].filter(([, arr]) => arr.length > 0) as [string, SearchResult[]][];
 
-  const flat = [...tabResults, ...bmResults, ...rlResults, ...historyResults];
+  const flat = [...tabResults, ...bmResults, ...rlResults, ...historyResults, ...actionItems];
 
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -146,7 +200,9 @@ export function CommandPalette({
       const it = flat[sel];
       if (it) {
         onClose();
-        if (it.kind === "tab") {
+        if (it.kind === "action" && it.action && onAction) {
+          onAction(it.action);
+        } else if (it.kind === "tab") {
           const tab = tabs.find((t) => `tab-${t.id}` === it.id);
           if (tab) activateTab(tab.id, tab.windowId);
         } else {
@@ -199,7 +255,9 @@ export function CommandPalette({
                       onMouseEnter={() => setSel(idx)}
                       onClick={() => {
                         onClose();
-                        if (it.kind === "tab") {
+                        if (it.kind === "action" && it.action && onAction) {
+                          onAction(it.action);
+                        } else if (it.kind === "tab") {
                           const tab = tabs.find(
                             (t) => `tab-${t.id}` === it.id,
                           );
@@ -209,7 +267,12 @@ export function CommandPalette({
                         }
                       }}
                     >
-                      <Favicon url={it.url} size={14} />
+                      {it.kind === "action" ? (
+                        it.action === "health" ? <IconHealth size={14} /> :
+                        <IconSettings size={14} />
+                      ) : (
+                        <Favicon url={it.url} size={14} />
+                      )}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div className="tm-tab-title">{it.title}</div>
                         <div
@@ -225,7 +288,7 @@ export function CommandPalette({
                       {it.kind === "tab" && <IconExternal size={11} />}
                       {it.kind === "history" && <IconClock size={11} />}
                       {it.kind === "readlater" && <IconBookmark size={11} />}
-                      <span className="src">{label}</span>
+                      {it.kind !== "action" && <span className="src">{label}</span>}
                     </div>
                   );
                 })}
@@ -241,8 +304,7 @@ export function CommandPalette({
             <span className="kbd">↵</span> open
           </span>
           <span>
-            <span className="kbd">@all</span>{" "}
-            {t.search.allHint.split("@all").pop()}
+            <span className="kbd">tab</span> actions
           </span>
         </div>
       </div>
