@@ -48,8 +48,37 @@ export default defineBackground(() => {
     if (message.type === "OPEN_URL") {
       chrome.tabs.create({ url: message.url });
     }
+    if (message.type === "GET_FOLDERS") {
+      getFolders().then(sendResponse);
+      return true;
+    }
+    if (message.type === "SAVE_BOOKMARK") {
+      chrome.bookmarks
+        .create({
+          parentId: message.parentId,
+          title: message.title,
+          url: message.url,
+        })
+        .then(() => sendResponse({ ok: true }));
+      return true;
+    }
   });
 });
+
+async function getFolders(): Promise<{ id: string; title: string }[]> {
+  const tree = await chrome.bookmarks.getTree();
+  const folders: { id: string; title: string }[] = [];
+  function walk(nodes: chrome.bookmarks.BookmarkTreeNode[]) {
+    for (const n of nodes) {
+      if (!n.url && n.children) {
+        if (n.title) folders.push({ id: n.id, title: n.title });
+        walk(n.children);
+      }
+    }
+  }
+  walk(tree);
+  return folders;
+}
 
 async function handleSearch(
   query: string,

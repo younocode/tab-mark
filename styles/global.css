@@ -281,3 +281,19 @@ mark {
 /* ── Scrollbar ─────────────────────────────────── */
 .tm-content::-webkit-scrollbar, .tm-bm-side::-webkit-scrollbar, .tm-bm-main::-webkit-scrollbar, .tm-cmd-results::-webkit-scrollbar { width: 8px; height: 8px; }
 .tm-content::-webkit-scrollbar-thumb, .tm-bm-side::-webkit-scrollbar-thumb, .tm-bm-main::-webkit-scrollbar-thumb, .tm-cmd-results::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+/* ── Animations ────────────────────────────────── */
+@keyframes tm-fade-in { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+@keyframes tm-slide-out { to { opacity: 0; transform: translateX(40px) scale(0.95); } }
+@keyframes tm-toast-in { from { opacity: 0; transform: translateX(-50%) translateY(16px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes tm-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tm-cmd-in { from { opacity: 0; transform: scale(0.96) translateY(-8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+.tm-tab-card { animation: tm-fade-in .15s ease; }
+.tm-tab-card.closing { animation: tm-slide-out .25s ease forwards; pointer-events: none; }
+.tm-toast { animation: tm-toast-in .2s ease; }
+.tm-overlay { animation: tm-overlay-in .15s ease; }
+.tm-cmd { animation: tm-cmd-in .15s ease; }
+.tm-topsite { animation: tm-fade-in .2s ease; }
+.tm-bm-card { animation: tm-fade-in .15s ease; }
+.tm-rc-item { animation: tm-fade-in .15s ease; }

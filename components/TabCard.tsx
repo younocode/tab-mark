@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useState, useRef } from "react";
 import { Favicon } from "./Favicon";
 import { IconClose, IconBookmark, IconMore } from "./icons";
 import { highlight } from "../utils/search";
@@ -26,17 +26,30 @@ export const TabCard = memo(function TabCard({
   onReadLater,
 }: TabCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleClose = (tabId: number) => {
+    setClosing(true);
+    cardRef.current?.addEventListener(
+      "animationend",
+      () => onClose(tabId),
+      { once: true },
+    );
+  };
+
   const cls = [
     "tm-tab-card",
     density,
     tab.discarded ? "hibernated" : "",
     layout === "list" ? "list" : "",
+    closing ? "closing" : "",
   ]
     .filter(Boolean)
     .join(" ");
 
   return (
-    <div className={cls} onClick={() => onOpen(tab)}>
+    <div ref={cardRef} className={cls} onClick={() => onOpen(tab)}>
       <Favicon url={tab.url} size={16} />
       <span className="tm-tab-title">
         {highlight(tab.title, query)}
@@ -98,7 +111,7 @@ export const TabCard = memo(function TabCard({
                 className="tm-btn ghost sm danger"
                 style={{ width: "100%", justifyContent: "flex-start" }}
                 onClick={() => {
-                  onClose(tab.id);
+                  handleClose(tab.id);
                   setMenuOpen(false);
                 }}
               >

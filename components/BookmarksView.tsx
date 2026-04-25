@@ -1,6 +1,18 @@
 import { useState, useMemo, useCallback } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { FolderTree } from "./FolderTree";
-import { BookmarkRow } from "./BookmarkRow";
+import { SortableBookmarkRow } from "./SortableBookmarkRow";
 import { BookmarkCard } from "./BookmarkCard";
 import { IconBookmark, IconTag, IconFolder, IconClose } from "./icons";
 import { useBookmarkStore } from "../stores/bookmarkStore";
@@ -88,6 +100,28 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
       setShowMoveMenu(false);
     },
     [selectedBookmarks],
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
+
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+
+      const activeIdx = filtered.findIndex((b) => b.id === active.id);
+      const overIdx = filtered.findIndex((b) => b.id === over.id);
+      if (activeIdx === -1 || overIdx === -1) return;
+
+      const overBookmark = filtered[overIdx];
+      await chrome.bookmarks.move(active.id as string, {
+        parentId: overBookmark.parentId,
+        index: overIdx,
+      });
+    },
+    [filtered],
   );
 
   const handleBatchAddTag = useCallback(
@@ -287,18 +321,29 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
         )}
 
         {viewMode === "list" ? (
-          <div className="tm-bm-list">
-            {filtered.map((b) => (
-              <BookmarkRow
-                key={b.id}
-                bookmark={b}
-                query={q}
-                selected={selectedBookmarks.includes(b.id)}
-                onToggleSelect={() => toggleSelect(b.id)}
-                tags={allTags[b.id] || []}
-              />
-            ))}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={filtered.map((b) => b.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="tm-bm-list">
+                {filtered.map((b) => (
+                  <SortableBookmarkRow
+                    key={b.id}
+                    bookmark={b}
+                    query={q}
+                    selected={selectedBookmarks.includes(b.id)}
+                    onToggleSelect={() => toggleSelect(b.id)}
+                    tags={allTags[b.id] || []}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         ) : (
           <div className="tm-bm-grid">
             {filtered.map((b) => (
