@@ -1,0 +1,60 @@
+import { memo } from "react";
+import { Favicon } from "./Favicon";
+import { IconExternal } from "./icons";
+import { highlight, getDomain } from "../utils/search";
+import type { BookmarkNode } from "../types";
+
+interface BookmarkRowProps {
+  bookmark: BookmarkNode;
+  query: string;
+}
+
+export const BookmarkRow = memo(function BookmarkRow({
+  bookmark,
+  query,
+}: BookmarkRowProps) {
+  const domain = bookmark.url ? getDomain(bookmark.url) : "";
+
+  return (
+    <div
+      className="tm-bm-row"
+      onClick={() => {
+        if (bookmark.url) chrome.tabs.create({ url: bookmark.url });
+      }}
+    >
+      <span />
+      <Favicon url={bookmark.url} size={14} />
+      <div style={{ minWidth: 0 }}>
+        <div className="b-title">
+          {highlight(bookmark.title, query)}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            alignItems: "center",
+            marginTop: 2,
+          }}
+        >
+          <span className="b-domain">{domain}</span>
+        </div>
+      </div>
+      <span className="b-meta">
+        {bookmark.dateAdded
+          ? new Date(bookmark.dateAdded).toLocaleDateString()
+          : ""}
+      </span>
+      <div className="b-actions">
+        <button
+          className="tm-btn ghost icon sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (bookmark.url) window.open(bookmark.url, "_blank");
+          }}
+        >
+          <IconExternal size={11} />
+        </button>
+      </div>
+    </div>
+  );
+});
