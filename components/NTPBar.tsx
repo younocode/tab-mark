@@ -15,10 +15,10 @@ function GoogleGlyph() {
 }
 
 interface NTPBarProps {
-  lang: string;
+  t: Translations;
 }
 
-export function NTPBar({ lang }: NTPBarProps) {
+export function NTPBar({ t }: NTPBarProps) {
   const [gQuery, setGQuery] = useState("");
   const [condensed, setCondensed] = useState(false);
   const ntpRef = useRef<HTMLDivElement>(null);
@@ -72,9 +72,7 @@ export function NTPBar({ lang }: NTPBarProps) {
             <TabMarkDoodle size={92} />
           </div>
           <span className="tagline">
-            {lang === "en"
-              ? "Tabs · Bookmarks · One home"
-              : "标签 · 书签 · 同一主页"}
+            {t.ntp.tagline}
           </span>
         </div>
         <form className="tm-google" onSubmit={submit}>
@@ -85,11 +83,7 @@ export function NTPBar({ lang }: NTPBarProps) {
             value={gQuery}
             onChange={(e) => setGQuery(e.target.value)}
             autoComplete="off"
-            placeholder={
-              lang === "en"
-                ? "Search Google or type a URL"
-                : "搜索 Google 或输入网址"
-            }
+            placeholder={t.ntp.googlePlaceholder}
           />
           <div className="g-actions">
             <span className="g-divider" />

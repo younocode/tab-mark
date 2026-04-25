@@ -113,10 +113,6 @@ export default function App() {
 
   const dismissToast = useCallback(() => setToast(null), []);
 
-  const toggleLang = useCallback(() => {
-    setPref("lang", lang === "en" ? "zh" : "en");
-  }, [lang, setPref]);
-
   const readingList = useReadingListStore((s) => s.entries);
   const bookmarkCount = flattenBookmarks(bookmarkTree).length;
   const readLaterCount = readingList.filter((e) => !e.hasBeenRead).length;
@@ -136,15 +132,13 @@ export default function App() {
         />
         <main className="tm-main">
           {view === "tabs" ? (
-            <NTPBar lang={lang} />
+            <NTPBar t={t} />
           ) : (
             <TopBar
               query={query}
               setQuery={setQuery}
               t={t}
               view={view}
-              lang={lang}
-              onToggleLang={toggleLang}
             />
           )}
           <ErrorBoundary>
@@ -386,7 +380,7 @@ function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
               onChange={(e) =>
                 setRuleInput((r) => ({ ...r, name: e.target.value }))
               }
-              placeholder={lang === "en" ? "Group name" : "分组名称"}
+              placeholder={t.settings.groupNamePlaceholder}
               style={{
                 width: 120,
                 height: 28,
@@ -405,7 +399,7 @@ function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
               onChange={(e) =>
                 setRuleInput((r) => ({ ...r, patterns: e.target.value }))
               }
-              placeholder={lang === "en" ? "Domains (comma-sep)" : "域名（逗号分隔）"}
+              placeholder={t.settings.domainPatternsPlaceholder}
               style={{
                 flex: 1,
                 height: 28,

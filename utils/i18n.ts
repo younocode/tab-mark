@@ -63,6 +63,14 @@ export interface Translations {
     data: string;
     exportTags: string;
     clearTags: string;
+    groupNamePlaceholder: string;
+    domainPatternsPlaceholder: string;
+    clearTagsConfirmTitle: string;
+    clearTagsConfirmMessage: string;
+  };
+  ntp: {
+    tagline: string;
+    googlePlaceholder: string;
   };
   readlater: {
     unread: string;
@@ -84,6 +92,8 @@ export interface Translations {
     noDuplicates: string;
     deleteAll: string;
     remove: string;
+    deleteAllTitle: (n: number) => string;
+    deleteAllMessage: string;
   };
   snapshots: {
     title: string;
@@ -177,6 +187,14 @@ const STRINGS: Record<string, Translations> = {
       data: "Data",
       exportTags: "Export tag data",
       clearTags: "Clear tag data",
+      groupNamePlaceholder: "Group name",
+      domainPatternsPlaceholder: "Domains (comma-sep)",
+      clearTagsConfirmTitle: "Clear all tag data?",
+      clearTagsConfirmMessage: "This will permanently remove all custom tags you have added to bookmarks. Bookmarks themselves will not be affected.",
+    },
+    ntp: {
+      tagline: "Tabs · Bookmarks · One home",
+      googlePlaceholder: "Search Google or type a URL",
     },
     readlater: {
       unread: "Unread",
@@ -198,6 +216,8 @@ const STRINGS: Record<string, Translations> = {
       noDuplicates: "No duplicates found.",
       deleteAll: "Delete all",
       remove: "Remove",
+      deleteAllTitle: (n) => `Delete ${n} dead links?`,
+      deleteAllMessage: "These bookmarks point to pages that no longer exist. They will be permanently removed.",
     },
     snapshots: {
       title: "Snapshots",
@@ -289,6 +309,14 @@ const STRINGS: Record<string, Translations> = {
       data: "数据",
       exportTags: "导出标签数据",
       clearTags: "清除标签数据",
+      groupNamePlaceholder: "分组名称",
+      domainPatternsPlaceholder: "域名（逗号分隔）",
+      clearTagsConfirmTitle: "清除所有标签数据？",
+      clearTagsConfirmMessage: "此操作将永久删除您为书签添加的所有自定义标签。书签本身不会受到影响。",
+    },
+    ntp: {
+      tagline: "标签 · 书签 · 同一主页",
+      googlePlaceholder: "搜索 Google 或输入网址",
     },
     readlater: {
       unread: "未读",
@@ -310,6 +338,8 @@ const STRINGS: Record<string, Translations> = {
       noDuplicates: "未发现重复。",
       deleteAll: "全部删除",
       remove: "删除",
+      deleteAllTitle: (n) => `删除 ${n} 条死链？`,
+      deleteAllMessage: "这些书签指向已不存在的页面，将被永久删除。",
     },
     snapshots: {
       title: "快照",

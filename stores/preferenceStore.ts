@@ -3,9 +3,18 @@ import type { UserPreferences } from "../types";
 
 const STORAGE_KEY = "tabmark_preferences";
 
+function detectLang(): "en" | "zh" {
+  try {
+    const uiLang = chrome.i18n.getUILanguage();
+    return uiLang.startsWith("zh") ? "zh" : "en";
+  } catch {
+    return "en";
+  }
+}
+
 const DEFAULTS: UserPreferences = {
   theme: "system",
-  lang: "en",
+  lang: detectLang(),
   defaultView: "tabs",
   topSitesStyle: "big",
   topSitesCount: 8,

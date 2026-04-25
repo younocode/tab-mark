@@ -1,4 +1,4 @@
-import { IconSearch, IconClose, IconGlobe } from "./icons";
+import { IconSearch, IconClose } from "./icons";
 import type { Translations } from "../utils/i18n";
 import type { ViewId } from "../types";
 
@@ -7,8 +7,6 @@ interface TopBarProps {
   setQuery: (q: string) => void;
   t: Translations;
   view: ViewId;
-  lang: string;
-  onToggleLang: () => void;
 }
 
 export function TopBar({
@@ -16,8 +14,6 @@ export function TopBar({
   setQuery,
   t,
   view,
-  lang,
-  onToggleLang,
 }: TopBarProps) {
   const placeholder =
     view === "tabs"
@@ -50,19 +46,6 @@ export function TopBar({
           </button>
         )}
         <span className="kbd">{t.search.hint}</span>
-      </div>
-      <div className="right">
-        <button className="tm-btn ghost" onClick={onToggleLang} title="Toggle language">
-          <IconGlobe size={13} />
-          <span
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 11,
-            }}
-          >
-            {lang === "en" ? "EN" : "中"}
-          </span>
-        </button>
       </div>
     </div>
   );

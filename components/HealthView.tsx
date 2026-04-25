@@ -354,8 +354,8 @@ export function HealthView({ t }: HealthViewProps) {
 
       {showDeleteAllConfirm && (
         <ConfirmDialog
-          title={`Delete ${deadLinks.length} dead links?`}
-          message="These bookmarks point to pages that no longer exist. They will be permanently removed."
+          title={t.health.deleteAllTitle(deadLinks.length)}
+          message={t.health.deleteAllMessage}
           confirmLabel={t.health.deleteAll}
           onConfirm={() => {
             removeAllDead();
