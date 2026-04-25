@@ -14,7 +14,7 @@ export interface Tab {
 export interface TabGroup {
   id: number;
   title: string;
-  color: chrome.tabGroups.ColorEnum;
+  color: chrome.tabGroups.Color;
   collapsed: boolean;
   windowId: number;
 }
