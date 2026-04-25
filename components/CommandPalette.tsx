@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Favicon } from "./Favicon";
-import { IconSearch, IconExternal, IconClock } from "./icons";
+import { IconSearch, IconExternal, IconClock, IconBookmark } from "./icons";
 import { useTabStore } from "../stores/tabStore";
 import { useBookmarkStore } from "../stores/bookmarkStore";
+import { useReadingListStore } from "../stores/readingListStore";
 import { flattenBookmarks } from "../utils/bookmarks";
 import { matchesQuery, getDomain } from "../utils/search";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
@@ -20,7 +21,7 @@ interface SearchResult {
   title: string;
   url: string;
   domain: string;
-  kind: "tab" | "bookmark";
+  kind: "tab" | "bookmark" | "readlater" | "history";
 }
 
 export function CommandPalette({
@@ -30,6 +31,7 @@ export function CommandPalette({
 }: CommandPaletteProps) {
   const [q, setQ] = useState("");
   const [sel, setSel] = useState(0);
+  const [historyResults, setHistoryResults] = useState<SearchResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const debouncedQ = useDebouncedValue(q);
 
@@ -40,6 +42,7 @@ export function CommandPalette({
   const tabs = useTabStore((s) => s.tabs);
   const activateTab = useTabStore((s) => s.activateTab);
   const bookmarkTree = useBookmarkStore((s) => s.tree);
+  const readingList = useReadingListStore((s) => s.entries);
 
   const allBookmarks = useMemo(
     () => flattenBookmarks(bookmarkTree),
@@ -80,12 +83,55 @@ export function CommandPalette({
     [allBookmarks, debouncedQ],
   );
 
-  const groups: [string, SearchResult[], string][] = [
-    [t.search.grpOpen, tabResults, "tab"],
-    [t.search.grpBookmarks, bmResults, "bookmark"],
-  ].filter(([, arr]) => arr.length > 0) as [string, SearchResult[], string][];
+  const rlResults = useMemo(
+    () =>
+      readingList
+        .filter((r) => matchesQuery(debouncedQ, r.title, r.url))
+        .slice(0, 3)
+        .map(
+          (r): SearchResult => ({
+            id: `rl-${r.url}`,
+            title: r.title,
+            url: r.url,
+            domain: getDomain(r.url),
+            kind: "readlater",
+          }),
+        ),
+    [readingList, debouncedQ],
+  );
 
-  const flat = [...tabResults, ...bmResults];
+  useEffect(() => {
+    if (!debouncedQ || !chrome.history) {
+      setHistoryResults([]);
+      return;
+    }
+    chrome.history
+      .search({ text: debouncedQ, maxResults: 5 })
+      .then((items) => {
+        setHistoryResults(
+          items
+            .filter((h) => h.url && h.title)
+            .map(
+              (h): SearchResult => ({
+                id: `hi-${h.url}`,
+                title: h.title!,
+                url: h.url!,
+                domain: getDomain(h.url!),
+                kind: "history",
+              }),
+            ),
+        );
+      });
+  }, [debouncedQ]);
+
+  const groups: [string, SearchResult[]][] = [
+    [t.search.grpOpen, tabResults],
+    [t.search.grpBookmarks, bmResults],
+    [t.search.grpReadLater, rlResults],
+    [t.search.grpHistory, historyResults],
+  ].filter(([, arr]) => arr.length > 0) as [string, SearchResult[]][];
+
+  const flat = [...tabResults, ...bmResults, ...rlResults, ...historyResults];
 
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -141,7 +187,7 @@ export function CommandPalette({
               {t.search.noResults}
             </div>
           ) : (
-            groups.map(([label, arr, kind]) => (
+            groups.map(([label, arr]) => (
               <div key={label}>
                 <div className="tm-cmd-group">{label}</div>
                 {arr.map((it) => {
@@ -157,8 +203,7 @@ export function CommandPalette({
                           const tab = tabs.find(
                             (t) => `tab-${t.id}` === it.id,
                           );
-                          if (tab)
-                            activateTab(tab.id, tab.windowId);
+                          if (tab) activateTab(tab.id, tab.windowId);
                         } else {
                           chrome.tabs.create({ url: it.url });
                         }
@@ -178,6 +223,8 @@ export function CommandPalette({
                         </div>
                       </div>
                       {it.kind === "tab" && <IconExternal size={11} />}
+                      {it.kind === "history" && <IconClock size={11} />}
+                      {it.kind === "readlater" && <IconBookmark size={11} />}
                       <span className="src">{label}</span>
                     </div>
                   );

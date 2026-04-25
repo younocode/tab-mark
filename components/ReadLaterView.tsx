@@ -145,6 +145,18 @@ export function ReadLaterView({ t }: ReadLaterViewProps) {
                 </button>
               )}
               <button
+                className="tm-btn ghost sm"
+                onClick={async () => {
+                  await chrome.bookmarks.create({
+                    title: entry.title,
+                    url: entry.url,
+                  });
+                }}
+                title={t.readlater.saveBookmark}
+              >
+                <IconBookmark size={11} />
+              </button>
+              <button
                 className="tm-btn ghost sm danger"
                 onClick={() => remove(entry.url)}
                 title={t.readlater.remove}

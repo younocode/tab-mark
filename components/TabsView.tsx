@@ -43,9 +43,7 @@ export function TabsView({ query, t, showToast }: TabsViewProps) {
     () =>
       !q
         ? tabs
-        : tabs.filter((tab) =>
-            matchesQuery(q, tab.title, tab.url),
-          ),
+        : tabs.filter((tab) => matchesQuery(q, tab.title, tab.url)),
     [tabs, q],
   );
 
@@ -98,6 +96,39 @@ export function TabsView({ query, t, showToast }: TabsViewProps) {
     [restoreSession, showToast],
   );
 
+  const handleCloseDuplicates = useCallback(async () => {
+    const seen = new Map<string, number>();
+    const toClose: number[] = [];
+    const sorted = [...tabs].sort((a, b) => b.id - a.id);
+    for (const tab of sorted) {
+      if (seen.has(tab.url)) {
+        toClose.push(tab.id);
+      } else {
+        seen.set(tab.url, tab.id);
+      }
+    }
+    for (const id of toClose) {
+      await closeTab(id);
+    }
+    if (toClose.length > 0) {
+      showToast({ msg: `Closed ${toClose.length} duplicate tabs` });
+    }
+  }, [tabs, closeTab, showToast]);
+
+  const handleReadLater = useCallback(
+    async (tab: Tab) => {
+      if (chrome.readingList) {
+        await chrome.readingList.addEntry({
+          url: tab.url,
+          title: tab.title,
+          hasBeenRead: false,
+        });
+        showToast({ msg: `Added "${tab.title.slice(0, 30)}…" to reading list` });
+      }
+    },
+    [showToast],
+  );
+
   return (
     <div className="tm-content">
       <TopSites
@@ -105,6 +136,17 @@ export function TabsView({ query, t, showToast }: TabsViewProps) {
         variant={topSitesStyle}
         onOpen={handleOpenUrl}
       />
+
+      {dupSet.size > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <button
+            className="tm-btn sm"
+            onClick={handleCloseDuplicates}
+          >
+            {t.tabs.closeDuplicates} ({dupSet.size})
+          </button>
+        </div>
+      )}
 
       {displayGroups.map((g) => (
         <div key={g.name} className="tm-section">
@@ -144,6 +186,7 @@ export function TabsView({ query, t, showToast }: TabsViewProps) {
                 query={q}
                 onClose={handleClose}
                 onOpen={handleOpen}
+                onReadLater={handleReadLater}
               />
             ))}
           </div>

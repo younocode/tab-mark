@@ -72,38 +72,21 @@ export function HealthView({ t }: HealthViewProps) {
 
     findDuplicates();
 
-    const results: HealthResult[] = [];
-    const concurrency = 5;
-    let idx = 0;
+    const urls = all.map((bm) => ({
+      bookmarkId: bm.id,
+      url: bm.url!,
+      title: bm.title,
+    }));
 
-    const checkOne = async () => {
-      while (idx < all.length) {
-        const i = idx++;
-        const bm = all[i];
-        try {
-          const resp = await fetch(bm.url!, { method: "HEAD", mode: "no-cors" });
-          if (resp.status >= 400) {
-            results.push({
-              bookmarkId: bm.id,
-              url: bm.url!,
-              title: bm.title,
-              status: resp.status,
-              parentPath: bm.parentId || "",
-            });
-          }
-        } catch {
-          // no-cors returns opaque response (status 0) which is actually OK
-          // Only push if we get a real error
-        }
-        setProgress((p) => ({ ...p, checked: p.checked + 1 }));
-      }
-    };
+    const results: HealthResult[] = await chrome.runtime.sendMessage({
+      type: "HEALTH_CHECK",
+      urls,
+    });
 
-    await Promise.all(
-      Array.from({ length: concurrency }, () => checkOne()),
+    setDeadLinks(
+      results.map((r) => ({ ...r, parentPath: "" })),
     );
-
-    setDeadLinks(results);
+    setProgress({ checked: all.length, total: all.length });
     setScanning(false);
   }, [tree, findDuplicates]);
 

@@ -208,6 +208,19 @@ function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
   const grouping = usePreferenceStore((s) => s.grouping);
   const groupHeader = usePreferenceStore((s) => s.groupHeader);
   const setPref = usePreferenceStore((s) => s.set);
+  const tagData = useTagStore((s) => s.tags);
+
+  const [ruleInput, setRuleInput] = useState({ name: "", patterns: "" });
+
+  const [rules, setRules] = useState<{ id: string; name: string; patterns: string[] }[]>(() => {
+    const saved = localStorage.getItem("tabmark_grouping_rules");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const saveRules = (updated: typeof rules) => {
+    setRules(updated);
+    localStorage.setItem("tabmark_grouping_rules", JSON.stringify(updated));
+  };
 
   return (
     <div className="tm-content" style={{ maxWidth: 640 }}>
@@ -333,6 +346,136 @@ function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
               ))}
             </div>
           </SettingRow>
+        </div>
+      </div>
+
+      <div className="tm-section" style={{ marginTop: 24 }}>
+        <div className="tm-section-hd">
+          <h2>{t.settings.groupingRules}</h2>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {rules.map((rule) => (
+            <div
+              key={rule.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "8px 0",
+                borderBottom: "1px solid var(--border)",
+              }}
+            >
+              <span style={{ fontWeight: 500, fontSize: 13 }}>{rule.name}</span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 11,
+                  color: "var(--fg-3)",
+                }}
+              >
+                {rule.patterns.join(", ")}
+              </span>
+              <button
+                className="tm-btn ghost sm danger"
+                style={{ marginLeft: "auto" }}
+                onClick={() => saveRules(rules.filter((r) => r.id !== rule.id))}
+              >
+                {t.bookmarks.remove}
+              </button>
+            </div>
+          ))}
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <input
+              value={ruleInput.name}
+              onChange={(e) =>
+                setRuleInput((r) => ({ ...r, name: e.target.value }))
+              }
+              placeholder={lang === "en" ? "Group name" : "分组名称"}
+              style={{
+                width: 120,
+                height: 28,
+                padding: "0 8px",
+                border: "1px solid var(--border)",
+                borderRadius: 4,
+                background: "var(--bg-sub)",
+                color: "var(--fg)",
+                fontSize: 12,
+                fontFamily: "inherit",
+                outline: "none",
+              }}
+            />
+            <input
+              value={ruleInput.patterns}
+              onChange={(e) =>
+                setRuleInput((r) => ({ ...r, patterns: e.target.value }))
+              }
+              placeholder={lang === "en" ? "Domains (comma-sep)" : "域名（逗号分隔）"}
+              style={{
+                flex: 1,
+                height: 28,
+                padding: "0 8px",
+                border: "1px solid var(--border)",
+                borderRadius: 4,
+                background: "var(--bg-sub)",
+                color: "var(--fg)",
+                fontSize: 12,
+                fontFamily: "var(--font-mono)",
+                outline: "none",
+              }}
+            />
+            <button
+              className="tm-btn sm primary"
+              onClick={() => {
+                if (!ruleInput.name.trim() || !ruleInput.patterns.trim()) return;
+                saveRules([
+                  ...rules,
+                  {
+                    id: `rule-${Date.now()}`,
+                    name: ruleInput.name.trim(),
+                    patterns: ruleInput.patterns
+                      .split(",")
+                      .map((p) => p.trim())
+                      .filter(Boolean),
+                  },
+                ]);
+                setRuleInput({ name: "", patterns: "" });
+              }}
+            >
+              {t.settings.addRule}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="tm-section" style={{ marginTop: 24 }}>
+        <div className="tm-section-hd">
+          <h2>{t.settings.data}</h2>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            className="tm-btn sm"
+            onClick={() => {
+              const json = JSON.stringify(tagData, null, 2);
+              const blob = new Blob([json], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "tabmark-tags.json";
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            {t.settings.exportTags}
+          </button>
+          <button
+            className="tm-btn sm danger"
+            onClick={async () => {
+              await chrome.storage.local.remove("tabmark_bookmark_tags");
+              useTagStore.getState().init();
+            }}
+          >
+            {t.settings.clearTags}
+          </button>
         </div>
       </div>
     </div>

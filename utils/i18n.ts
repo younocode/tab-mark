@@ -17,6 +17,8 @@ export interface Translations {
     noResults: string;
     grpOpen: string;
     grpBookmarks: string;
+    grpReadLater: string;
+    grpHistory: string;
   };
   tabs: {
     topSites: string;
@@ -56,11 +58,17 @@ export interface Translations {
     defaultView: string;
     topSites: string;
     topSitesCount: string;
+    groupingRules: string;
+    addRule: string;
+    data: string;
+    exportTags: string;
+    clearTags: string;
   };
   readlater: {
     unread: string;
     read: string;
     markRead: string;
+    saveBookmark: string;
     remove: string;
     empty: string;
   };
@@ -123,6 +131,8 @@ const STRINGS: Record<string, Translations> = {
       noResults: "No results",
       grpOpen: "Open tabs",
       grpBookmarks: "Bookmarks",
+      grpReadLater: "Reading list",
+      grpHistory: "Recently visited",
     },
     tabs: {
       topSites: "Frequent",
@@ -162,11 +172,17 @@ const STRINGS: Record<string, Translations> = {
       defaultView: "Default view",
       topSites: "Top sites",
       topSitesCount: "Sites count",
+      groupingRules: "Grouping rules",
+      addRule: "Add rule",
+      data: "Data",
+      exportTags: "Export tag data",
+      clearTags: "Clear tag data",
     },
     readlater: {
       unread: "Unread",
       read: "Read",
       markRead: "Mark read",
+      saveBookmark: "Save as bookmark",
       remove: "Remove",
       empty: "Nothing here. Save articles to read later from the tab card menu.",
     },
@@ -227,6 +243,8 @@ const STRINGS: Record<string, Translations> = {
       noResults: "无结果",
       grpOpen: "已打开",
       grpBookmarks: "已收藏",
+      grpReadLater: "稍后读",
+      grpHistory: "最近浏览",
     },
     tabs: {
       topSites: "常用",
@@ -266,11 +284,17 @@ const STRINGS: Record<string, Translations> = {
       defaultView: "默认视图",
       topSites: "常用网站",
       topSitesCount: "显示数量",
+      groupingRules: "分组规则",
+      addRule: "添加规则",
+      data: "数据",
+      exportTags: "导出标签数据",
+      clearTags: "清除标签数据",
     },
     readlater: {
       unread: "未读",
       read: "已读",
       markRead: "标记已读",
+      saveBookmark: "转为书签",
       remove: "移除",
       empty: "还没有内容。从标签页菜单中保存文章稍后阅读。",
     },

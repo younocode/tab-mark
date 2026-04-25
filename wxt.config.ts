@@ -22,7 +22,10 @@ export default defineConfig({
       "topSites",
       "readingList",
       "history",
+      "activeTab",
+      "scripting",
     ],
+    host_permissions: ["http://*/*", "https://*/*"],
   },
   vite: () => ({
     plugins: [tailwindcss()],

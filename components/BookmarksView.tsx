@@ -5,7 +5,7 @@ import { BookmarkCard } from "./BookmarkCard";
 import { IconBookmark, IconTag, IconFolder, IconClose } from "./icons";
 import { useBookmarkStore } from "../stores/bookmarkStore";
 import { useTagStore } from "../stores/tagStore";
-import { flattenBookmarks, getFolderById } from "../utils/bookmarks";
+import { flattenBookmarks, getFolderById, getFolders } from "../utils/bookmarks";
 import { matchesQuery } from "../utils/search";
 import type { Translations } from "../utils/i18n";
 
@@ -18,24 +18,23 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
   const tree = useBookmarkStore((s) => s.tree);
   const initialized = useBookmarkStore((s) => s.initialized);
   const allTags = useTagStore((s) => s.tags);
+  const addTag = useTagStore((s) => s.addTag);
   const tagsList = useTagStore((s) => s.getAllTags)();
   const [currentFolder, setCurrentFolder] = useState("all");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedBookmarks, setSelectedBookmarks] = useState<string[]>([]);
+  const [batchTagInput, setBatchTagInput] = useState("");
+  const [showMoveMenu, setShowMoveMenu] = useState(false);
 
   const q = query.replace(/^@all\s*/i, "").trim();
 
-  const allBookmarks = useMemo(
-    () => flattenBookmarks(tree),
-    [tree],
-  );
+  const allBookmarks = useMemo(() => flattenBookmarks(tree), [tree]);
+  const folders = useMemo(() => getFolders(tree), [tree]);
 
   const folder = useMemo(
     () =>
-      currentFolder !== "all"
-        ? getFolderById(tree, currentFolder)
-        : null,
+      currentFolder !== "all" ? getFolderById(tree, currentFolder) : null,
     [tree, currentFolder],
   );
 
@@ -57,11 +56,7 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
 
   const filtered = useMemo(
     () =>
-      !q
-        ? pool
-        : pool.filter((b) =>
-            matchesQuery(q, b.title, b.url),
-          ),
+      !q ? pool : pool.filter((b) => matchesQuery(q, b.title, b.url)),
     [pool, q],
   );
 
@@ -83,6 +78,27 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
     }
     setSelectedBookmarks([]);
   }, [selectedBookmarks]);
+
+  const handleBatchMove = useCallback(
+    async (targetFolderId: string) => {
+      for (const id of selectedBookmarks) {
+        await chrome.bookmarks.move(id, { parentId: targetFolderId });
+      }
+      setSelectedBookmarks([]);
+      setShowMoveMenu(false);
+    },
+    [selectedBookmarks],
+  );
+
+  const handleBatchAddTag = useCallback(
+    async (tag: string) => {
+      for (const id of selectedBookmarks) {
+        await addTag(id, tag);
+      }
+      setBatchTagInput("");
+    },
+    [selectedBookmarks, addTag],
+  );
 
   if (!initialized) {
     return (
@@ -144,9 +160,7 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
           }}
         >
           <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>
-            {currentFolder === "all"
-              ? t.bookmarks.all
-              : folder?.title}
+            {currentFolder === "all" ? t.bookmarks.all : folder?.title}
           </h2>
           <span
             style={{
@@ -157,13 +171,7 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
           >
             {t.bookmarks.count(filtered.length)}
           </span>
-          <div
-            style={{
-              marginLeft: "auto",
-              display: "flex",
-              gap: 8,
-            }}
-          >
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
             <div className="tm-segmented">
               <button
                 className={viewMode === "list" ? "active" : ""}
@@ -186,6 +194,85 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
             <span className="count">
               {t.bookmarks.selected(selectedBookmarks.length)}
             </span>
+            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              <input
+                value={batchTagInput}
+                onChange={(e) => setBatchTagInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && batchTagInput.trim()) {
+                    handleBatchAddTag(batchTagInput.trim());
+                  }
+                }}
+                placeholder={t.bookmarks.addTag + "…"}
+                style={{
+                  width: 100,
+                  height: 24,
+                  border: "1px solid var(--border)",
+                  borderRadius: 4,
+                  background: "var(--bg-sub)",
+                  color: "var(--fg)",
+                  fontSize: 11,
+                  padding: "0 6px",
+                  outline: "none",
+                  fontFamily: "inherit",
+                }}
+              />
+              <button
+                className="tm-btn sm"
+                onClick={() =>
+                  batchTagInput.trim() &&
+                  handleBatchAddTag(batchTagInput.trim())
+                }
+              >
+                <IconTag size={11} /> {t.bookmarks.addTag}
+              </button>
+            </div>
+            <div style={{ position: "relative" }}>
+              <button
+                className="tm-btn sm"
+                onClick={() => setShowMoveMenu(!showMoveMenu)}
+              >
+                <IconFolder size={11} /> {t.bookmarks.move}
+              </button>
+              {showMoveMenu && (
+                <>
+                  <div
+                    style={{ position: "fixed", inset: 0, zIndex: 10 }}
+                    onClick={() => setShowMoveMenu(false)}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 11,
+                      background: "var(--bg-elev)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-sm)",
+                      boxShadow: "var(--shadow-md)",
+                      padding: 4,
+                      minWidth: 200,
+                      maxHeight: 240,
+                      overflowY: "auto",
+                    }}
+                  >
+                    {folders.map((f) => (
+                      <button
+                        key={f.id}
+                        className="tm-btn ghost sm"
+                        style={{
+                          width: "100%",
+                          justifyContent: "flex-start",
+                        }}
+                        onClick={() => handleBatchMove(f.id)}
+                      >
+                        <IconFolder size={11} /> {f.title}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <button className="tm-btn sm danger" onClick={handleBatchDelete}>
               <IconClose size={11} /> {t.bookmarks.remove}
             </button>
