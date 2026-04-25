@@ -1,28 +1,34 @@
 import { memo } from "react";
 import { Favicon } from "./Favicon";
-import { IconExternal } from "./icons";
+import { IconExternal, IconCheck } from "./icons";
 import { highlight, getDomain } from "../utils/search";
 import type { BookmarkNode } from "../types";
 
 interface BookmarkRowProps {
   bookmark: BookmarkNode;
   query: string;
+  selected: boolean;
+  onToggleSelect: () => void;
+  tags: string[];
 }
 
 export const BookmarkRow = memo(function BookmarkRow({
   bookmark,
   query,
+  selected,
+  onToggleSelect,
+  tags,
 }: BookmarkRowProps) {
   const domain = bookmark.url ? getDomain(bookmark.url) : "";
 
   return (
     <div
-      className="tm-bm-row"
-      onClick={() => {
-        if (bookmark.url) chrome.tabs.create({ url: bookmark.url });
-      }}
+      className={`tm-bm-row ${selected ? "selected" : ""}`}
+      onClick={onToggleSelect}
     >
-      <span />
+      <span className={`tm-check ${selected ? "checked" : ""}`}>
+        <IconCheck size={9} />
+      </span>
       <Favicon url={bookmark.url} size={14} />
       <div style={{ minWidth: 0 }}>
         <div className="b-title">
@@ -37,6 +43,15 @@ export const BookmarkRow = memo(function BookmarkRow({
           }}
         >
           <span className="b-domain">{domain}</span>
+          {tags.length > 0 && (
+            <div className="b-tags">
+              {tags.map((tag) => (
+                <span key={tag} className="tm-pill tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <span className="b-meta">
@@ -49,7 +64,7 @@ export const BookmarkRow = memo(function BookmarkRow({
           className="tm-btn ghost icon sm"
           onClick={(e) => {
             e.stopPropagation();
-            if (bookmark.url) window.open(bookmark.url, "_blank");
+            if (bookmark.url) chrome.tabs.create({ url: bookmark.url });
           }}
         >
           <IconExternal size={11} />

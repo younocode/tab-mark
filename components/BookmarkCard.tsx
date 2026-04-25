@@ -6,11 +6,13 @@ import type { BookmarkNode } from "../types";
 interface BookmarkCardProps {
   bookmark: BookmarkNode;
   query: string;
+  tags: string[];
 }
 
 export const BookmarkCard = memo(function BookmarkCard({
   bookmark,
   query,
+  tags,
 }: BookmarkCardProps) {
   const domain = bookmark.url ? getDomain(bookmark.url) : "";
 
@@ -49,6 +51,15 @@ export const BookmarkCard = memo(function BookmarkCard({
       <div className="b-title">
         {highlight(bookmark.title, query)}
       </div>
+      {tags.length > 0 && (
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+          {tags.map((tag) => (
+            <span key={tag} className="tm-pill tag">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 });

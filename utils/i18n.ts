@@ -4,6 +4,7 @@ export interface Translations {
   nav: {
     tabs: string;
     bookmarks: string;
+    health: string;
     settings: string;
   };
   search: {
@@ -28,6 +29,8 @@ export interface Translations {
     showMore: string;
     showLess: string;
     duplicate: string;
+    snapshot: string;
+    closeDuplicates: string;
   };
   bookmarks: {
     all: string;
@@ -53,6 +56,30 @@ export interface Translations {
     topSites: string;
     topSitesCount: string;
   };
+  health: {
+    title: string;
+    subtitle: string;
+    start: string;
+    scanning: string;
+    checked: (a: number, b: number) => string;
+    dead: string;
+    duplicates: string;
+    noDead: string;
+    noDuplicates: string;
+    deleteAll: string;
+    remove: string;
+  };
+  snapshots: {
+    title: string;
+    subtitle: string;
+    placeholder: string;
+    save: string;
+    restore: string;
+    rename: string;
+    delete: string;
+    count: (n: number) => string;
+    empty: string;
+  };
   common: {
     close: string;
     open: string;
@@ -75,6 +102,7 @@ const STRINGS: Record<string, Translations> = {
     nav: {
       tabs: "Tabs",
       bookmarks: "Bookmarks",
+      health: "Health Check",
       settings: "Settings",
     },
     search: {
@@ -99,6 +127,8 @@ const STRINGS: Record<string, Translations> = {
       showMore: "Show more",
       showLess: "Show less",
       duplicate: "Duplicate",
+      snapshot: "Snapshot",
+      closeDuplicates: "Close duplicates",
     },
     bookmarks: {
       all: "All bookmarks",
@@ -124,6 +154,30 @@ const STRINGS: Record<string, Translations> = {
       topSites: "Top sites",
       topSitesCount: "Sites count",
     },
+    health: {
+      title: "Bookmark health",
+      subtitle: "Find dead links and duplicates",
+      start: "Start scan",
+      scanning: "Scanning…",
+      checked: (a, b) => `${a} of ${b} checked`,
+      dead: "Dead links",
+      duplicates: "Duplicates",
+      noDead: "No dead links found.",
+      noDuplicates: "No duplicates found.",
+      deleteAll: "Delete all",
+      remove: "Remove",
+    },
+    snapshots: {
+      title: "Snapshots",
+      subtitle: "Save and restore tab sessions",
+      placeholder: "Snapshot name…",
+      save: "Save",
+      restore: "Restore",
+      rename: "Rename",
+      delete: "Delete",
+      count: (n) => `${n} tab${n === 1 ? "" : "s"}`,
+      empty: "No snapshots yet.",
+    },
     common: {
       close: "Close",
       open: "Open",
@@ -144,6 +198,7 @@ const STRINGS: Record<string, Translations> = {
     nav: {
       tabs: "标签页",
       bookmarks: "书签",
+      health: "健康检查",
       settings: "设置",
     },
     search: {
@@ -168,6 +223,8 @@ const STRINGS: Record<string, Translations> = {
       showMore: "展开更多",
       showLess: "收起",
       duplicate: "重复",
+      snapshot: "快照",
+      closeDuplicates: "关闭重复",
     },
     bookmarks: {
       all: "全部书签",
@@ -192,6 +249,30 @@ const STRINGS: Record<string, Translations> = {
       defaultView: "默认视图",
       topSites: "常用网站",
       topSitesCount: "显示数量",
+    },
+    health: {
+      title: "书签健康",
+      subtitle: "查找死链与重复书签",
+      start: "开始扫描",
+      scanning: "扫描中…",
+      checked: (a, b) => `已检查 ${a} / ${b}`,
+      dead: "死链",
+      duplicates: "重复",
+      noDead: "未发现死链。",
+      noDuplicates: "未发现重复。",
+      deleteAll: "全部删除",
+      remove: "删除",
+    },
+    snapshots: {
+      title: "快照",
+      subtitle: "保存与恢复标签页会话",
+      placeholder: "快照名称…",
+      save: "保存",
+      restore: "恢复",
+      rename: "重命名",
+      delete: "删除",
+      count: (n) => `${n} 个标签`,
+      empty: "还没有快照。",
     },
     common: {
       close: "关闭",

@@ -65,4 +65,26 @@ export interface UserPreferences {
   groupHeader: "row" | "card" | "pill";
 }
 
-export type ViewId = "tabs" | "bookmarks" | "settings";
+export type ViewId = "tabs" | "bookmarks" | "health" | "settings";
+
+export interface Snapshot {
+  id: string;
+  name: string;
+  createdAt: number;
+  tabs: { url: string; title: string; groupName?: string }[];
+}
+
+export interface HealthResult {
+  bookmarkId: string;
+  url: string;
+  title: string;
+  status: number | "timeout" | "error";
+  parentPath: string;
+}
+
+export interface DuplicateGroup {
+  url: string;
+  title: string;
+  bookmarkIds: string[];
+  paths: string[];
+}

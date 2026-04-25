@@ -115,11 +115,21 @@ export function TabsView({ query, t, showToast }: TabsViewProps) {
             mode={grouping}
             t={t}
             headerStyle={groupHeader}
+            onSaveAll={async () => {
+              const folder = await chrome.bookmarks.create({ title: g.name });
+              for (const tab of g.tabs) {
+                await chrome.bookmarks.create({
+                  parentId: folder.id,
+                  title: tab.title,
+                  url: tab.url,
+                });
+              }
+              showToast({ msg: `Saved ${g.tabs.length} tabs to "${g.name}"` });
+            }}
             onCloseAll={() => {
               g.tabs.forEach((tab) => closeTab(tab.id));
               showToast({
                 msg: `Closed ${g.tabs.length} tabs in ${g.name}`,
-                undoable: false,
               });
             }}
           />

@@ -6,13 +6,17 @@ import { Toast, type ToastData } from "../../components/Toast";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { TabsView } from "../../components/TabsView";
 import { BookmarksView } from "../../components/BookmarksView";
+import { HealthView } from "../../components/HealthView";
 import { CommandPalette } from "../../components/CommandPalette";
+import { SnapshotsModal } from "../../components/SnapshotsModal";
 import { usePreferenceStore } from "../../stores/preferenceStore";
 import { useTabStore } from "../../stores/tabStore";
 import { useTabGroupStore } from "../../stores/tabGroupStore";
 import { useSessionStore } from "../../stores/sessionStore";
 import { useTopSitesStore } from "../../stores/topSitesStore";
 import { useBookmarkStore } from "../../stores/bookmarkStore";
+import { useSnapshotStore } from "../../stores/snapshotStore";
+import { useTagStore } from "../../stores/tagStore";
 import { useTheme } from "../../hooks/useTheme";
 import { getTranslations } from "../../utils/i18n";
 import type { ViewId } from "../../types";
@@ -24,6 +28,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState<ToastData | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [snapshotsOpen, setSnapshotsOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const theme = usePreferenceStore((s) => s.theme);
@@ -42,12 +47,13 @@ export default function App() {
       useTabGroupStore.getState().init(),
       useSessionStore.getState().init(),
       useTopSitesStore.getState().init(),
+      useSnapshotStore.getState().init(),
+      useTagStore.getState().init(),
     ]);
   }, []);
 
-  // Lazy-load bookmarks when navigating to bookmarks view
   useEffect(() => {
-    if (view === "bookmarks") {
+    if (view === "bookmarks" || view === "health") {
       useBookmarkStore.getState().init();
     }
   }, [view]);
@@ -122,6 +128,7 @@ export default function App() {
           tabCount={tabs.length}
           bookmarkCount={bookmarkCount}
           collapsed={sidebarCollapsed}
+          onOpenSnapshots={() => setSnapshotsOpen(true)}
         />
         <main className="tm-main">
           {view === "tabs" ? (
@@ -151,6 +158,9 @@ export default function App() {
                 t={t}
               />
             )}
+            {view === "health" && (
+              <HealthView t={t} />
+            )}
             {view === "settings" && (
               <SettingsView t={t} />
             )}
@@ -163,6 +173,13 @@ export default function App() {
           onClose={() => setPaletteOpen(false)}
           t={t}
           showToast={showToast}
+        />
+      )}
+
+      {snapshotsOpen && (
+        <SnapshotsModal
+          onClose={() => setSnapshotsOpen(false)}
+          t={t}
         />
       )}
 

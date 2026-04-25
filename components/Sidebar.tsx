@@ -1,8 +1,31 @@
 import { memo } from "react";
 import { TabMarkLogo } from "./TabMarkLogo";
-import { IconTabs, IconBookmark, IconSettings } from "./icons";
+import {
+  IconTabs,
+  IconBookmark,
+  IconSettings,
+  IconCamera,
+} from "./icons";
 import type { Translations } from "../utils/i18n";
 import type { ViewId } from "../types";
+
+// Inline health icon to avoid adding to shared icons for a single use
+function IconHealth({ size = 14 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 8h2.5l1.5-3 2 6 1.5-3H14" />
+    </svg>
+  );
+}
 
 interface SidebarProps {
   view: ViewId;
@@ -11,6 +34,7 @@ interface SidebarProps {
   tabCount: number;
   bookmarkCount: number;
   collapsed: boolean;
+  onOpenSnapshots: () => void;
 }
 
 export const Sidebar = memo(function Sidebar({
@@ -20,12 +44,13 @@ export const Sidebar = memo(function Sidebar({
   tabCount,
   bookmarkCount,
   collapsed,
+  onOpenSnapshots,
 }: SidebarProps) {
   const items: {
     id: ViewId;
     icon: React.FC<{ size?: number }>;
     label: string;
-    badge: number;
+    badge?: number;
   }[] = [
     { id: "tabs", icon: IconTabs, label: t.nav.tabs, badge: tabCount },
     {
@@ -33,6 +58,11 @@ export const Sidebar = memo(function Sidebar({
       icon: IconBookmark,
       label: t.nav.bookmarks,
       badge: bookmarkCount,
+    },
+    {
+      id: "health",
+      icon: IconHealth,
+      label: t.nav.health,
     },
   ];
 
@@ -67,7 +97,9 @@ export const Sidebar = memo(function Sidebar({
               {!collapsed && (
                 <>
                   <span>{it.label}</span>
-                  <span className="badge">{it.badge}</span>
+                  {it.badge != null && (
+                    <span className="badge">{it.badge}</span>
+                  )}
                 </>
               )}
             </button>
@@ -75,6 +107,15 @@ export const Sidebar = memo(function Sidebar({
         })}
       </nav>
       <div className="tm-sb-foot">
+        {!collapsed && (
+          <button
+            className="tm-btn ghost sm"
+            style={{ flex: 1 }}
+            onClick={onOpenSnapshots}
+          >
+            <IconCamera size={11} /> {t.tabs.snapshot}
+          </button>
+        )}
         <button
           className="tm-btn ghost icon sm"
           onClick={() => setView("settings")}
