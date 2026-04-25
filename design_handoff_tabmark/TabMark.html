@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TabMark — New Tab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="#1a1612"/>
+    <rect x="22" y="28" width="38" height="30" rx="6" fill="none" stroke="#f0e6d2" stroke-width="3"/>
+    <path d="M52 26 L78 26 L78 74 L65 66 L52 74 Z" fill="#d49a3a"/>
+  </svg>
+</template>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="styles.jsx"></script>
+<script type="text/babel" src="data.jsx"></script>
+<script type="text/babel" src="i18n.jsx"></script>
+<script type="text/babel" src="favicons.jsx"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="tabmark-logo.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="views-tabs.jsx"></script>
+<script type="text/babel" src="views-bookmarks.jsx"></script>
+<script type="text/babel" src="views-other.jsx"></script>
+<script type="text/babel" src="modals.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "density": "compact",
+  "tabsLayout": "grid",
+  "groupHeader": "row",
+  "sidebar": "labeled",
+  "accent": "#d49a3a",
+  "topSites": "big",
+  "paletteStyle": "centered",
+  "grouping": "chrome"
+}/*EDITMODE-END*/;
+
+function Sidebar({ view, setView, t, tweaks, state, setState }) {
+  const items = [
+    { id: "tabs", icon: IconTabs, label: t.nav.tabs, badge: state.tabs.length },
+    { id: "bookmarks", icon: IconBookmark, label: t.nav.bookmarks, badge: flattenBookmarks(state.bookmarkTree).length },
+    { id: "readlater", icon: IconRead, label: t.nav.readLater, badge: state.readingList.filter((x) => !x.read).length },
+    { id: "health", icon: IconHealth, label: t.nav.health, badge: state.health.dead.length + state.health.duplicates.length },
+  ];
+  const collapsed = tweaks.sidebar === "icons";
+  return (
+    <aside className={`tm-sb ${collapsed ? "collapsed" : ""}`}>
+      <div className="tm-sb-hd" style={{ flexDirection: collapsed ? "column" : "row" }}>
+        <TabMarkLogo size={22} accent={tweaks.accent}/>
+        {!collapsed && (
+          <div>
+            <div className="brand">{t.appName}</div>
+            <div className="tag">{t.appTagline}</div>
+          </div>
+        )}
+      </div>
+      <div className="tm-sb-divider"/>
+      <nav className="tm-sb-nav">
+        {items.map((it) => {
+          const I = it.icon;
+          return (
+            <button key={it.id}
+              className={`tm-sb-item ${view === it.id ? "active" : ""}`}
+              onClick={() => setView(it.id)}
+              style={{ justifyContent: collapsed ? "center" : "flex-start" }}>
+              <I size={14}/>
+              {!collapsed && <>
+                <span>{it.label}</span>
+                {it.badge != null && <span className="badge">{it.badge}</span>}
+              </>}
+            </button>
+          );
+        })}
+      </nav>
+      <div className="tm-sb-foot">
+        {!collapsed && <button className="tm-btn ghost sm" style={{ flex: 1 }}
+          onClick={() => setState((s) => ({ ...s, snapshotsOpen: true }))}>
+          <IconCamera size={11}/> {t.tabs.snapshot}
+        </button>}
+        <button className="tm-btn ghost icon sm"
+          onClick={() => setView("settings")}
+          title={t.nav.settings}>
+          <IconSettings size={12}/>
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+function GoogleGlyph() {
+  // Multi-color G mark — original SVG, not lifted from any asset
+  return (
+    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/>
+      <path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/>
+      <path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/>
+      <path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/>
+    </svg>
+  );
+}
+
+function NTPBar({ state, setState, t, tweaks }) {
+  const [gQuery, setGQuery] = React.useState("");
+  const [condensed, setCondensed] = React.useState(false);
+  const ntpRef = React.useRef(null);
+
+  React.useEffect(() => {
+    let scroller = null;
+    let raf = 0;
+    const tryAttach = () => {
+      const main = ntpRef.current?.closest(".tm-main");
+      scroller = main?.querySelector(".tm-content");
+      if (!scroller) { raf = requestAnimationFrame(tryAttach); return; }
+      const onScroll = () => setCondensed(scroller.scrollTop > 24);
+      scroller.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+      scroller.__tmOnScroll = onScroll;
+    };
+    tryAttach();
+    return () => {
+      cancelAnimationFrame(raf);
+      if (scroller && scroller.__tmOnScroll) {
+        scroller.removeEventListener("scroll", scroller.__tmOnScroll);
+        delete scroller.__tmOnScroll;
+      }
+    };
+  }, []);
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!gQuery.trim()) return;
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(gQuery)}`, "_blank", "noopener");
+  };
+
+  return (
+    <div ref={ntpRef} className={`tm-ntp ${condensed ? "is-condensed" : ""}`}>
+      <div className="tm-ntp-stage">
+        <div className="tm-ntp-wordmark">
+          <div className="mark">
+            <TabMarkDoodle size={92} accent={tweaks?.accent || "#D97757"}/>
+          </div>
+          <span className="tagline">{state.lang === "en" ? "Tabs · Bookmarks · One home" : "标签 · 书签 · 同一主页"}</span>
+        </div>
+        <form className="tm-google" onSubmit={submit}>
+          <span className="g-glyph"><GoogleGlyph/></span>
+          <input value={gQuery} onChange={(e) => setGQuery(e.target.value)} autoComplete="off"
+            placeholder={state.lang === "en" ? "Search Google or type a URL" : "搜索 Google 或输入网址"}/>
+          <div className="g-actions">
+            <button type="button" className="g-icon" title="Voice search" aria-label="Voice search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                <rect x="9" y="3" width="6" height="12" rx="3" fill="currentColor" opacity="0.85" stroke="none"/>
+                <path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>
+              </svg>
+            </button>
+            <button type="button" className="g-icon" title="Search by image" aria-label="Search by image">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <circle cx="9" cy="9" r="2.5"/>
+                <path d="M3 5h6l1.5-2h3L15 5h6v14H3z" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <span className="g-divider"/>
+            <button type="submit" className="g-icon" title="Google search" aria-label="Search">
+              <IconSearch size={14}/>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function TopBar({ state, setState, t, view, useNTP, tweaks }) {
+  if (useNTP) return <NTPBar state={state} setState={setState} t={t} tweaks={tweaks}/>;
+  const placeholder = view === "tabs" ? (state.lang === "en" ? "Search tabs in this view…" : "在此视图中搜索标签页…")
+    : view === "bookmarks" ? (state.lang === "en" ? "Search bookmarks in this view…" : "在此视图中搜索书签…")
+    : view === "readlater" ? t.search.placeholderRL
+    : t.search.placeholderTabs;
+
+  return (
+    <div className="tm-topbar">
+      <div className="tm-search" onClick={() => document.getElementById("tm-search-input")?.focus()}>
+        <IconSearch size={14}/>
+        <input id="tm-search-input" value={state.query}
+          onChange={(e) => setState((s) => ({ ...s, query: e.target.value }))}
+          placeholder={placeholder}/>
+        {state.query && (
+          <button className="tm-btn ghost icon sm" onClick={() => setState((s) => ({ ...s, query: "" }))}>
+            <IconClose size={11}/>
+          </button>
+        )}
+        <span className="kbd">⌘K</span>
+      </div>
+      <div className="right">
+        <button className="tm-btn ghost icon" onClick={() => setState((s) => ({ ...s, smartSaveOpen: true }))}
+          title="Smart save current page (⌘D)">
+          <IconStar size={13}/>
+        </button>
+        <button className="tm-btn ghost"
+          onClick={() => setState((s) => ({ ...s, lang: s.lang === "en" ? "zh" : "en" }))}
+          title="Toggle language">
+          <IconGlobe size={13}/>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>{state.lang === "en" ? "EN" : "中"}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Toast({ toast, dismiss, t }) {
+  React.useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(dismiss, 4000);
+    return () => clearTimeout(id);
+  }, [toast]);
+  if (!toast) return null;
+  return (
+    <div className="tm-toast">
+      <span>{toast.msg}</span>
+      {toast.undoable && <button className="undo" onClick={dismiss}>Undo</button>}
+      <button className="tm-btn ghost icon sm" onClick={dismiss}><IconClose size={10}/></button>
+    </div>
+  );
+}
+
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [state, setState] = React.useState({
+    view: "tabs",
+    theme: "system",
+    lang: "en",
+    query: "",
+    tabs: MOCK_TABS,
+    topSites: MOCK_TOP_SITES,
+    recentlyClosed: MOCK_RECENTLY_CLOSED,
+    rcExpanded: false,
+    bookmarkTree: MOCK_BOOKMARK_TREE,
+    currentFolder: "all",
+    viewMode: "list",
+    selectedTags: [],
+    selectedBookmarks: [],
+    readingList: MOCK_READING_LIST,
+    rlTab: "unread",
+    history: MOCK_HISTORY,
+    health: MOCK_HEALTH,
+    healthTab: "dead",
+    scanProgress: 0,
+    scanning: false,
+    snapshots: MOCK_SNAPSHOTS,
+    paletteOpen: false,
+    smartSaveOpen: false,
+    snapshotsOpen: false,
+    toast: null,
+    hibEnabled: true,
+  });
+
+  const t = useT(state.lang);
+
+  // Theme application
+  React.useEffect(() => {
+    const apply = () => {
+      let theme = state.theme;
+      if (theme === "system") {
+        theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", theme);
+    };
+    apply();
+    if (state.theme === "system") {
+      const mq = window.matchMedia("(prefers-color-scheme: dark)");
+      mq.addEventListener("change", apply);
+      return () => mq.removeEventListener("change", apply);
+    }
+  }, [state.theme]);
+
+  // Apply accent
+  React.useEffect(() => {
+    document.documentElement.style.setProperty("--accent-raw", tweaks.accent);
+    // Convert the hex accent into oklch via a temp element
+    const tmp = document.createElement("div");
+    tmp.style.color = tweaks.accent;
+    document.body.appendChild(tmp);
+    const rgb = getComputedStyle(tmp).color;
+    document.body.removeChild(tmp);
+    document.documentElement.style.setProperty("--accent", rgb);
+  }, [tweaks.accent]);
+
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    const onKey = (e) => {
+      const meta = e.metaKey || e.ctrlKey;
+      if (meta && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setState((s) => ({ ...s, paletteOpen: true }));
+      } else if (meta && e.shiftKey && e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        setState((s) => ({ ...s, paletteOpen: true }));
+      } else if (meta && e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        setState((s) => ({ ...s, smartSaveOpen: true }));
+      } else if (e.key === "Escape") {
+        setState((s) => ({ ...s, query: "", selectedBookmarks: [] }));
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Auto-trigger palette when query starts with @all
+  React.useEffect(() => {
+    if (state.query.startsWith("@all") && state.query.length >= 4 && !state.paletteOpen) {
+      setState((s) => ({ ...s, paletteOpen: true, query: "" }));
+    }
+  }, [state.query]);
+
+  const setView = (v) => setState((s) => ({ ...s, view: v, query: "", selectedBookmarks: [] }));
+
+  return (
+    <>
+      <style>{TABMARK_CSS}</style>
+      <div className="tm-app">
+        <Sidebar view={state.view} setView={setView} t={t} tweaks={tweaks} state={state} setState={setState}/>
+        <main className="tm-main">
+          <TopBar state={state} setState={setState} t={t} view={state.view} useNTP={state.view === "tabs"} tweaks={tweaks}/>
+          {state.view === "tabs" && <TabsView state={state} setState={setState} t={t} tweaks={tweaks}/>}
+          {state.view === "bookmarks" && <BookmarksView state={state} setState={setState} t={t} tweaks={tweaks}/>}
+          {state.view === "readlater" && <ReadLaterView state={state} setState={setState} t={t}/>}
+          {state.view === "health" && <HealthView state={state} setState={setState} t={t}/>}
+          {state.view === "settings" && <SettingsView state={state} setState={setState} t={t} tweaks={tweaks} setTweak={setTweak}/>}
+        </main>
+      </div>
+
+      {state.paletteOpen && <CommandPalette state={state} setState={setState} t={t}/>}
+      {state.snapshotsOpen && <SnapshotsModal state={state} setState={setState} t={t}/>}
+      {state.smartSaveOpen && <SmartSaveModal state={state} setState={setState} t={t}/>}
+
+      <Toast toast={state.toast} dismiss={() => setState((s) => ({ ...s, toast: null }))} t={t}/>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Grouping"/>
+        <TweakRadio label="Mode" value={tweaks.grouping}
+          options={[{ value: "chrome", label: "Chrome groups" }, { value: "domain", label: "By domain" }]}
+          onChange={(v) => setTweak("grouping", v)}/>
+        <TweakSection label="Layout"/>
+        <TweakRadio label="Density" value={tweaks.density}
+          options={[{ value: "compact", label: "Compact" }, { value: "comfortable", label: "Cozy" }, { value: "spacious", label: "Spacious" }]}
+          onChange={(v) => setTweak("density", v)}/>
+        <TweakRadio label="Tabs layout" value={tweaks.tabsLayout}
+          options={[{ value: "grid", label: "Grid" }, { value: "list", label: "List" }]}
+          onChange={(v) => setTweak("tabsLayout", v)}/>
+        <TweakRadio label="Group header" value={tweaks.groupHeader}
+          options={[{ value: "row", label: "Row" }, { value: "card", label: "Card" }, { value: "pill", label: "Pill" }]}
+          onChange={(v) => setTweak("groupHeader", v)}/>
+        <TweakRadio label="Sidebar" value={tweaks.sidebar}
+          options={[{ value: "labeled", label: "Labeled" }, { value: "icons", label: "Icons" }]}
+          onChange={(v) => setTweak("sidebar", v)}/>
+        <TweakSection label="Top sites"/>
+        <TweakRadio label="Style" value={tweaks.topSites}
+          options={[{ value: "big", label: "Big" }, { value: "small", label: "Small" }, { value: "compact", label: "Tiny" }, { value: "hidden", label: "Off" }]}
+          onChange={(v) => setTweak("topSites", v)}/>
+        <TweakSection label="Color"/>
+        <TweakColor label="Accent" value={tweaks.accent} onChange={(v) => setTweak("accent", v)}/>
+      </TweaksPanel>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+</script>
+</body>
+</html>
