@@ -28,8 +28,10 @@ export function TabsView({ query, t, showToast }: TabsViewProps) {
   const groups = useTabGroupStore((s) => s.groups);
   const recentlyClosed = useSessionStore((s) => s.recentlyClosed);
   const restoreSession = useSessionStore((s) => s.restoreSession);
-  const sites = useTopSitesStore((s) => s.sites);
+  const allSites = useTopSitesStore((s) => s.sites);
   const topSitesStyle = usePreferenceStore((s) => s.topSitesStyle);
+  const topSitesCount = usePreferenceStore((s) => s.topSitesCount);
+  const sites = allSites.slice(0, topSitesCount);
   const density = usePreferenceStore((s) => s.density);
   const tabsLayout = usePreferenceStore((s) => s.tabsLayout);
   const grouping = usePreferenceStore((s) => s.grouping);

@@ -6,7 +6,9 @@ const STORAGE_KEY = "tabmark_preferences";
 const DEFAULTS: UserPreferences = {
   theme: "system",
   lang: "en",
+  defaultView: "tabs",
   topSitesStyle: "big",
+  topSitesCount: 8,
   tabsLayout: "grid",
   density: "compact",
   grouping: "chrome",
@@ -44,7 +46,9 @@ export const usePreferenceStore = create<PreferenceStore>((setState, getState) =
     const prefs: UserPreferences = {
       theme: state.theme,
       lang: state.lang,
+      defaultView: state.defaultView,
       topSitesStyle: state.topSitesStyle,
+      topSitesCount: state.topSitesCount,
       tabsLayout: state.tabsLayout,
       density: state.density,
       grouping: state.grouping,

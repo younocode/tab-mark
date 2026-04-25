@@ -19,7 +19,8 @@ import type { ViewId } from "../../types";
 import { flattenBookmarks } from "../../utils/bookmarks";
 
 export default function App() {
-  const [view, setView] = useState<ViewId>("tabs");
+  const defaultView = usePreferenceStore((s) => s.defaultView);
+  const [view, setView] = useState<ViewId>(defaultView);
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState<ToastData | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -173,7 +174,9 @@ export default function App() {
 function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
   const theme = usePreferenceStore((s) => s.theme);
   const lang = usePreferenceStore((s) => s.lang);
+  const defaultView = usePreferenceStore((s) => s.defaultView);
   const topSitesStyle = usePreferenceStore((s) => s.topSitesStyle);
+  const topSitesCount = usePreferenceStore((s) => s.topSitesCount);
   const density = usePreferenceStore((s) => s.density);
   const tabsLayout = usePreferenceStore((s) => s.tabsLayout);
   const grouping = usePreferenceStore((s) => s.grouping);
@@ -213,13 +216,39 @@ function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
               ))}
             </div>
           </SettingRow>
-          <SettingRow label="Top Sites">
+          <SettingRow label={t.settings.defaultView}>
+            <div className="tm-segmented">
+              {(["tabs", "bookmarks"] as const).map((v) => (
+                <button
+                  key={v}
+                  className={defaultView === v ? "active" : ""}
+                  onClick={() => setPref("defaultView", v)}
+                >
+                  {v === "tabs" ? t.nav.tabs : t.nav.bookmarks}
+                </button>
+              ))}
+            </div>
+          </SettingRow>
+          <SettingRow label={t.settings.topSites}>
             <div className="tm-segmented">
               {(["big", "small", "compact", "hidden"] as const).map((v) => (
                 <button
                   key={v}
                   className={topSitesStyle === v ? "active" : ""}
                   onClick={() => setPref("topSitesStyle", v)}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+          </SettingRow>
+          <SettingRow label={t.settings.topSitesCount}>
+            <div className="tm-segmented">
+              {([4, 6, 8] as const).map((v) => (
+                <button
+                  key={v}
+                  className={topSitesCount === v ? "active" : ""}
+                  onClick={() => setPref("topSitesCount", v)}
                 >
                   {v}
                 </button>

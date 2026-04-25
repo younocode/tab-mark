@@ -56,7 +56,9 @@ export interface BookmarkNode {
 export interface UserPreferences {
   theme: "system" | "light" | "dark";
   lang: "en" | "zh";
+  defaultView: "tabs" | "bookmarks";
   topSitesStyle: "big" | "small" | "compact" | "hidden";
+  topSitesCount: number;
   tabsLayout: "grid" | "list";
   density: "compact" | "comfortable" | "spacious";
   grouping: "chrome" | "domain";

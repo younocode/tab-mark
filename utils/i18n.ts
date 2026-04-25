@@ -49,6 +49,9 @@ export interface Translations {
     themeLight: string;
     themeDark: string;
     language: string;
+    defaultView: string;
+    topSites: string;
+    topSitesCount: string;
   };
   common: {
     close: string;
@@ -117,6 +120,9 @@ const STRINGS: Record<string, Translations> = {
       themeLight: "Light",
       themeDark: "Dark",
       language: "Language",
+      defaultView: "Default view",
+      topSites: "Top sites",
+      topSitesCount: "Sites count",
     },
     common: {
       close: "Close",
@@ -183,6 +189,9 @@ const STRINGS: Record<string, Translations> = {
       themeLight: "浅色",
       themeDark: "深色",
       language: "语言",
+      defaultView: "默认视图",
+      topSites: "常用网站",
+      topSitesCount: "显示数量",
     },
     common: {
       close: "关闭",

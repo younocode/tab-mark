@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Favicon } from "./Favicon";
 import { IconRestore } from "./icons";
 import type { Translations } from "../utils/i18n";
@@ -22,11 +23,12 @@ export function RecentlyClosedList({
   t,
   onRestore,
 }: RecentlyClosedProps) {
-  if (items.length === 0) return null;
+  const [expanded, setExpanded] = useState(false);
 
-  const tabItems = items
-    .filter((rc) => rc.tab)
-    .slice(0, 10);
+  const tabItems = items.filter((rc) => rc.tab);
+  if (tabItems.length === 0) return null;
+
+  const visible = tabItems.slice(0, expanded ? 20 : 5);
 
   return (
     <div className="tm-section" style={{ marginTop: 32 }}>
@@ -35,7 +37,7 @@ export function RecentlyClosedList({
         <span className="meta">{tabItems.length}</span>
       </div>
       <div className="tm-rc-list">
-        {tabItems.map((rc) => {
+        {visible.map((rc) => {
           const tab = rc.tab!;
           return (
             <div key={rc.sessionId || tab.tabId} className="tm-rc-item">
@@ -61,6 +63,15 @@ export function RecentlyClosedList({
           );
         })}
       </div>
+      {tabItems.length > 5 && (
+        <button
+          className="tm-btn ghost sm"
+          style={{ marginTop: 6 }}
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? t.tabs.showLess : t.tabs.showMore}
+        </button>
+      )}
     </div>
   );
 }

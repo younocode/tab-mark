@@ -5,7 +5,9 @@ const STORAGE_KEY = "tabmark_preferences";
 const DEFAULTS: UserPreferences = {
   theme: "system",
   lang: "en",
+  defaultView: "tabs",
   topSitesStyle: "big",
+  topSitesCount: 8,
   tabsLayout: "grid",
   density: "compact",
   grouping: "chrome",
