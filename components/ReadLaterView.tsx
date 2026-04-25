@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from "react";
 import { Favicon } from "./Favicon";
 import { IconCheck, IconBookmark, IconClose } from "./icons";
 import { useReadingListStore } from "../stores/readingListStore";
+import { useBookmarkStore } from "../stores/bookmarkStore";
+import { flattenBookmarks } from "../utils/bookmarks";
 import { getDomain } from "../utils/search";
 import type { Translations } from "../utils/i18n";
 
@@ -13,11 +15,21 @@ export function ReadLaterView({ t }: ReadLaterViewProps) {
   const entries = useReadingListStore((s) => s.entries);
   const markAsRead = useReadingListStore((s) => s.markAsRead);
   const remove = useReadingListStore((s) => s.remove);
+  const bookmarkTree = useBookmarkStore((s) => s.tree);
   const [tab, setTab] = useState<"unread" | "read">("unread");
 
   useEffect(() => {
     useReadingListStore.getState().init();
+    useBookmarkStore.getState().init();
   }, []);
+
+  const bookmarkedUrlMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const b of flattenBookmarks(bookmarkTree)) {
+      if (b.url && !map.has(b.url)) map.set(b.url, b.id);
+    }
+    return map;
+  }, [bookmarkTree]);
 
   const filtered = useMemo(
     () =>
@@ -144,18 +156,29 @@ export function ReadLaterView({ t }: ReadLaterViewProps) {
                   <IconCheck size={11} />
                 </button>
               )}
-              <button
-                className="tm-btn ghost sm"
-                onClick={async () => {
-                  await chrome.bookmarks.create({
-                    title: entry.title,
-                    url: entry.url,
-                  });
-                }}
-                title={t.readlater.saveBookmark}
-              >
-                <IconBookmark size={11} />
-              </button>
+              {(() => {
+                const bookmarkId = bookmarkedUrlMap.get(entry.url);
+                const isBookmarked = !!bookmarkId;
+                return (
+                  <button
+                    className="tm-btn ghost sm"
+                    onClick={async () => {
+                      if (bookmarkId) {
+                        await chrome.bookmarks.remove(bookmarkId);
+                      } else {
+                        await chrome.bookmarks.create({
+                          title: entry.title,
+                          url: entry.url,
+                        });
+                      }
+                    }}
+                    title={isBookmarked ? t.readlater.removeBookmark : t.readlater.saveBookmark}
+                    style={isBookmarked ? { color: "var(--accent)" } : undefined}
+                  >
+                    <IconBookmark size={11} filled={isBookmarked} />
+                  </button>
+                );
+              })()}
               <button
                 className="tm-btn ghost sm danger"
                 onClick={() => remove(entry.url)}

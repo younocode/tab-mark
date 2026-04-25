@@ -154,6 +154,7 @@ export default function App() {
               <BookmarksView
                 query={query}
                 t={t}
+                showToast={showToast}
               />
             )}
             {view === "readlater" && (

@@ -1,6 +1,6 @@
 import { memo, useState, useRef } from "react";
 import { Favicon } from "./Favicon";
-import { IconClose, IconBookmark, IconMore } from "./icons";
+import { IconClose, IconBookmark } from "./icons";
 import { highlight } from "../utils/search";
 import type { Tab } from "../types";
 
@@ -25,7 +25,6 @@ export const TabCard = memo(function TabCard({
   onOpen,
   onReadLater,
 }: TabCardProps) {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -59,73 +58,23 @@ export const TabCard = memo(function TabCard({
       </span>
       {tab.discarded && <span className="tm-pill hib">Zzz</span>}
       {isDuplicate && <span className="tm-pill dup">dup</span>}
-      <div style={{ position: "relative" }}>
+      {onReadLater && (
         <button
           className="tm-tab-close"
           onClick={(e) => {
             e.stopPropagation();
-            setMenuOpen(!menuOpen);
+            onReadLater(tab);
           }}
-          aria-label="More actions"
-          style={{ opacity: undefined }}
+          aria-label="Read Later"
         >
-          <IconMore size={11} />
+          <IconBookmark size={11} />
         </button>
-        {menuOpen && (
-          <>
-            <div
-              style={{ position: "fixed", inset: 0, zIndex: 10 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                setMenuOpen(false);
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                right: 0,
-                top: "100%",
-                zIndex: 11,
-                background: "var(--bg-elev)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius-sm)",
-                boxShadow: "var(--shadow-md)",
-                padding: 4,
-                minWidth: 140,
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {onReadLater && (
-                <button
-                  className="tm-btn ghost sm"
-                  style={{ width: "100%", justifyContent: "flex-start" }}
-                  onClick={() => {
-                    onReadLater(tab);
-                    setMenuOpen(false);
-                  }}
-                >
-                  <IconBookmark size={11} /> Read Later
-                </button>
-              )}
-              <button
-                className="tm-btn ghost sm danger"
-                style={{ width: "100%", justifyContent: "flex-start" }}
-                onClick={() => {
-                  handleClose(tab.id);
-                  setMenuOpen(false);
-                }}
-              >
-                <IconClose size={11} /> Close
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+      )}
       <button
         className="tm-tab-close"
         onClick={(e) => {
           e.stopPropagation();
-          onClose(tab.id);
+          handleClose(tab.id);
         }}
         aria-label="Close tab"
       >

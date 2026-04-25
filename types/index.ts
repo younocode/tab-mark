@@ -88,12 +88,28 @@ export interface Snapshot {
   tabs: { url: string; title: string; groupName?: string }[];
 }
 
+export type LinkStatus =
+  | "dead"
+  | "soft404"
+  | "timeout"
+  | "dns_error"
+  | "ssl_error"
+  | "server_error"
+  | "rate_limited"
+  | "forbidden"
+  | "redirected"
+  | "invalid"
+  | "unknown";
+
 export interface HealthResult {
   bookmarkId: string;
   url: string;
   title: string;
-  status: number | "timeout" | "error";
-  parentPath: string;
+  status: LinkStatus;
+  httpStatus?: number;
+  finalUrl?: string;
+  severity: "dead" | "warn";
+  parentPath?: string;
 }
 
 export interface DuplicateGroup {

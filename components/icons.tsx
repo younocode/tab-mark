@@ -47,10 +47,12 @@ export function IconTabs(p: IconProps) {
   );
 }
 
-export function IconBookmark(p: IconProps) {
+export function IconBookmark(p: IconProps & { filled?: boolean }) {
+  const { filled, ...rest } = p;
   return (
     <Icon
-      {...p}
+      {...rest}
+      fill={filled ? "currentColor" : "none"}
       d={
         <path d="M4 2.5h8a.8.8 0 0 1 .8.8v10.2L8 11.2l-4.8 2.3V3.3a.8.8 0 0 1 .8-.8z" />
       }
@@ -247,6 +249,35 @@ export function IconPlus(p: IconProps) {
   );
 }
 
+export function IconEdit(p: IconProps) {
+  return (
+    <Icon
+      {...p}
+      d={
+        <>
+          <path d="M11.5 2.5l2 2-7 7H4.5v-2z" />
+          <path d="M10 4l2 2" />
+          <path d="M4 13.5h8" />
+        </>
+      }
+    />
+  );
+}
+
+export function IconCopy(p: IconProps) {
+  return (
+    <Icon
+      {...p}
+      d={
+        <>
+          <rect x="5.5" y="5.5" width="8" height="8" rx="1.2" />
+          <path d="M10.5 5.5V3.3a.8.8 0 0 0-.8-.8H3.3a.8.8 0 0 0-.8.8v6.4a.8.8 0 0 0 .8.8h2.2" />
+        </>
+      }
+    />
+  );
+}
+
 export function IconGlobe(p: IconProps) {
   return (
     <Icon
@@ -255,6 +286,57 @@ export function IconGlobe(p: IconProps) {
         <>
           <circle cx="8" cy="8" r="5.5" />
           <path d="M2.5 8h11M8 2.5c2 2 2 9 0 11M8 2.5c-2 2-2 9 0 11" />
+        </>
+      }
+    />
+  );
+}
+
+export function IconPause(p: IconProps) {
+  return (
+    <Icon
+      {...p}
+      d={
+        <>
+          <path d="M5.5 3.5v9M10.5 3.5v9" />
+        </>
+      }
+    />
+  );
+}
+
+export function IconPlay(p: IconProps) {
+  return (
+    <Icon
+      {...p}
+      fill="currentColor"
+      d={<path d="M5 3l8 5-8 5V3z" />}
+    />
+  );
+}
+
+export function IconTrash(p: IconProps) {
+  return (
+    <Icon
+      {...p}
+      d={
+        <>
+          <path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5v8.5h7V4.5" />
+          <path d="M6.5 7v4M9.5 7v4" />
+        </>
+      }
+    />
+  );
+}
+
+export function IconFolderOpen(p: IconProps) {
+  return (
+    <Icon
+      {...p}
+      d={
+        <>
+          <path d="M2 4.5V12h11L14.5 6.5H5.5L4.5 4.5H2z" />
+          <path d="M2 4.5V3h4l1.5 1.5" />
         </>
       }
     />

@@ -1,18 +1,19 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { BookmarkRow } from "./BookmarkRow";
+import { bmDndId } from "../utils/dndIds";
 import type { BookmarkNode } from "../types";
 
 interface SortableBookmarkRowProps {
   bookmark: BookmarkNode;
   query: string;
-  selected: boolean;
-  onToggleSelect: () => void;
+  onContextMenu: (e: React.MouseEvent) => void;
 }
 
 export function SortableBookmarkRow({
   bookmark,
-  ...rest
+  query,
+  onContextMenu,
 }: SortableBookmarkRowProps) {
   const {
     attributes,
@@ -21,7 +22,14 @@ export function SortableBookmarkRow({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: bookmark.id });
+    isSorting,
+    isOver,
+    activeIndex,
+    index,
+  } = useSortable({
+    id: bmDndId(bookmark.id),
+    data: { type: "bookmark", node: bookmark },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -31,9 +39,21 @@ export function SortableBookmarkRow({
     zIndex: isDragging ? 10 : undefined,
   };
 
+  let cls = "tm-bm-sortable";
+  if (isOver && isSorting && !isDragging) {
+    cls += activeIndex > index ? " insert-before" : " insert-after";
+  }
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <BookmarkRow bookmark={bookmark} {...rest} />
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cls}
+      {...attributes}
+      {...listeners}
+      onContextMenu={onContextMenu}
+    >
+      <BookmarkRow bookmark={bookmark} query={query} />
     </div>
   );
 }

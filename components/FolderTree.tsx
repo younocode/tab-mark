@@ -1,10 +1,11 @@
-import { IconFolder } from "./icons";
+import { DroppableFolder } from "./DroppableFolder";
 import type { BookmarkNode } from "../types";
 
 interface FolderTreeProps {
   tree: BookmarkNode[];
   current: string;
   onSelect: (id: string) => void;
+  onContextMenu?: (e: React.MouseEvent, folder: BookmarkNode) => void;
   depth?: number;
 }
 
@@ -12,6 +13,7 @@ export function FolderTree({
   tree,
   current,
   onSelect,
+  onContextMenu,
   depth = 0,
 }: FolderTreeProps) {
   return (
@@ -22,21 +24,19 @@ export function FolderTree({
         const bookmarkCount = node.children.filter((c) => c.url).length;
         return (
           <div key={node.id}>
-            <button
-              className={`tm-bm-folder ${current === node.id ? "active" : ""}`}
-              style={{ paddingLeft: 8 + depth * 14 }}
+            <DroppableFolder
+              node={node}
+              active={current === node.id}
+              depth={depth}
+              bookmarkCount={bookmarkCount}
               onClick={() => onSelect(node.id)}
-            >
-              <IconFolder size={12} />
-              <span>{node.title}</span>
-              {bookmarkCount > 0 && (
-                <span className="count">{bookmarkCount}</span>
-              )}
-            </button>
+              onContextMenu={(e) => onContextMenu?.(e, node)}
+            />
             <FolderTree
               tree={node.children}
               current={current}
               onSelect={onSelect}
+              onContextMenu={onContextMenu}
               depth={depth + 1}
             />
           </div>

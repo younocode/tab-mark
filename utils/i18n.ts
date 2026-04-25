@@ -47,6 +47,7 @@ export interface Translations {
     move: string;
     added: string;
     path: string;
+    moveFailed: string;
   };
   settings: {
     appearance: string;
@@ -77,6 +78,7 @@ export interface Translations {
     read: string;
     markRead: string;
     saveBookmark: string;
+    removeBookmark: string;
     remove: string;
     empty: string;
   };
@@ -94,6 +96,15 @@ export interface Translations {
     remove: string;
     deleteAllTitle: (n: number) => string;
     deleteAllMessage: string;
+    pause: string;
+    resume: string;
+    cancel: string;
+    warn: string;
+    confirmed: string;
+    statusLabels: Record<string, string>;
+    emptyFolders: string;
+    noEmptyFolders: string;
+    emptyFolderCount: (n: number) => string;
   };
   snapshots: {
     title: string;
@@ -105,6 +116,25 @@ export interface Translations {
     delete: string;
     count: (n: number) => string;
     empty: string;
+  };
+  contextMenu: {
+    openNewTab: string;
+    openNewWindow: string;
+    openIncognito: string;
+    edit: string;
+    delete: string;
+    copyUrl: string;
+    openAll: string;
+    rename: string;
+    newFolder: string;
+    deleteFolder: string;
+  };
+  editDialog: {
+    editTitle: string;
+    name: string;
+    url: string;
+    save: string;
+    cancel: string;
   };
   common: {
     close: string;
@@ -171,6 +201,7 @@ const STRINGS: Record<string, Translations> = {
       move: "Move",
       added: "added",
       path: "in",
+      moveFailed: "Move failed",
     },
     settings: {
       appearance: "Appearance",
@@ -201,6 +232,7 @@ const STRINGS: Record<string, Translations> = {
       read: "Read",
       markRead: "Mark read",
       saveBookmark: "Save as bookmark",
+      removeBookmark: "Remove from bookmarks",
       remove: "Remove",
       empty: "Nothing here. Save articles to read later from the tab card menu.",
     },
@@ -218,6 +250,27 @@ const STRINGS: Record<string, Translations> = {
       remove: "Remove",
       deleteAllTitle: (n) => `Delete ${n} dead links?`,
       deleteAllMessage: "These bookmarks point to pages that no longer exist. They will be permanently removed.",
+      pause: "Pause",
+      resume: "Resume",
+      cancel: "Cancel",
+      warn: "Suspicious",
+      confirmed: "Confirmed",
+      statusLabels: {
+        dead: "Not found",
+        soft404: "Soft 404",
+        timeout: "Timeout",
+        dns_error: "DNS error",
+        ssl_error: "SSL error",
+        server_error: "Server error",
+        rate_limited: "Rate limited",
+        forbidden: "Forbidden",
+        redirected: "Redirected",
+        invalid: "Invalid URL",
+        unknown: "Unknown",
+      },
+      emptyFolders: "Empty folders",
+      noEmptyFolders: "No empty folders found.",
+      emptyFolderCount: (n) => `${n} empty`,
     },
     snapshots: {
       title: "Snapshots",
@@ -229,6 +282,25 @@ const STRINGS: Record<string, Translations> = {
       delete: "Delete",
       count: (n) => `${n} tab${n === 1 ? "" : "s"}`,
       empty: "No snapshots yet.",
+    },
+    contextMenu: {
+      openNewTab: "Open in new tab",
+      openNewWindow: "Open in new window",
+      openIncognito: "Open in incognito window",
+      edit: "Edit",
+      delete: "Delete",
+      copyUrl: "Copy URL",
+      openAll: "Open all bookmarks",
+      rename: "Rename",
+      newFolder: "New folder",
+      deleteFolder: "Delete folder",
+    },
+    editDialog: {
+      editTitle: "Edit bookmark",
+      name: "Name",
+      url: "URL",
+      save: "Save",
+      cancel: "Cancel",
     },
     common: {
       close: "Close",
@@ -293,6 +365,7 @@ const STRINGS: Record<string, Translations> = {
       move: "移动",
       added: "添加于",
       path: "位于",
+      moveFailed: "移动失败",
     },
     settings: {
       appearance: "外观",
@@ -323,6 +396,7 @@ const STRINGS: Record<string, Translations> = {
       read: "已读",
       markRead: "标记已读",
       saveBookmark: "转为书签",
+      removeBookmark: "从书签中移除",
       remove: "移除",
       empty: "还没有内容。从标签页菜单中保存文章稍后阅读。",
     },
@@ -340,6 +414,27 @@ const STRINGS: Record<string, Translations> = {
       remove: "删除",
       deleteAllTitle: (n) => `删除 ${n} 条死链？`,
       deleteAllMessage: "这些书签指向已不存在的页面，将被永久删除。",
+      pause: "暂停",
+      resume: "继续",
+      cancel: "取消",
+      warn: "可疑",
+      confirmed: "确认",
+      statusLabels: {
+        dead: "已失效",
+        soft404: "疑似失效",
+        timeout: "访问超时",
+        dns_error: "域名异常",
+        ssl_error: "证书异常",
+        server_error: "服务异常",
+        rate_limited: "请求受限",
+        forbidden: "无权限访问",
+        redirected: "已跳转",
+        invalid: "无效链接",
+        unknown: "未知",
+      },
+      emptyFolders: "空文件夹",
+      noEmptyFolders: "未发现空文件夹。",
+      emptyFolderCount: (n) => `${n} 个空文件夹`,
     },
     snapshots: {
       title: "快照",
@@ -351,6 +446,25 @@ const STRINGS: Record<string, Translations> = {
       delete: "删除",
       count: (n) => `${n} 个标签`,
       empty: "还没有快照。",
+    },
+    contextMenu: {
+      openNewTab: "在新标签页中打开",
+      openNewWindow: "在新窗口中打开",
+      openIncognito: "在无痕窗口中打开",
+      edit: "编辑",
+      delete: "删除",
+      copyUrl: "复制链接",
+      openAll: "打开所有书签",
+      rename: "重命名",
+      newFolder: "新建文件夹",
+      deleteFolder: "删除文件夹",
+    },
+    editDialog: {
+      editTitle: "编辑书签",
+      name: "名称",
+      url: "链接",
+      save: "保存",
+      cancel: "取消",
     },
     common: {
       close: "关闭",
