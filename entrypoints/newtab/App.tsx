@@ -4,7 +4,6 @@ import { NTPBar } from "../../components/NTPBar";
 import { TopBar } from "../../components/TopBar";
 import { Toast, type ToastData } from "../../components/Toast";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
-import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { TabsView } from "../../components/TabsView";
 import { BookmarksView } from "../../components/BookmarksView";
 import { HealthView } from "../../components/HealthView";
@@ -18,7 +17,6 @@ import { useSessionStore } from "../../stores/sessionStore";
 import { useTopSitesStore } from "../../stores/topSitesStore";
 import { useBookmarkStore } from "../../stores/bookmarkStore";
 import { useSnapshotStore } from "../../stores/snapshotStore";
-import { useTagStore } from "../../stores/tagStore";
 import { useReadingListStore } from "../../stores/readingListStore";
 import { useTheme } from "../../hooks/useTheme";
 import { getTranslations } from "../../utils/i18n";
@@ -51,7 +49,6 @@ export default function App() {
       useSessionStore.getState().init(),
       useTopSitesStore.getState().init(),
       useSnapshotStore.getState().init(),
-      useTagStore.getState().init(),
       useReadingListStore.getState().init(),
     ]);
   }, []);
@@ -209,9 +206,6 @@ function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
   const grouping = usePreferenceStore((s) => s.grouping);
   const groupHeader = usePreferenceStore((s) => s.groupHeader);
   const setPref = usePreferenceStore((s) => s.set);
-  const tagData = useTagStore((s) => s.tags);
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-
   const [ruleInput, setRuleInput] = useState({ name: "", patterns: "" });
 
   const [rules, setRules] = useState<{ id: string; name: string; patterns: string[] }[]>(() => {
@@ -449,51 +443,6 @@ function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
         </div>
       </div>
 
-      <div className="tm-section" style={{ marginTop: 24 }}>
-        <div className="tm-section-hd">
-          <h2>{t.settings.data}</h2>
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            className="tm-btn sm"
-            onClick={() => {
-              const json = JSON.stringify(tagData, null, 2);
-              const blob = new Blob([json], { type: "application/json" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "tabmark-tags.json";
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-          >
-            {t.settings.exportTags}
-          </button>
-          <button
-            className="tm-btn sm danger"
-            onClick={() => setShowClearConfirm(true)}
-          >
-            {t.settings.clearTags}
-          </button>
-        </div>
-      </div>
-
-      {showClearConfirm && (
-        <ConfirmDialog
-          title={lang === "en" ? "Clear all tag data?" : "清除所有标签数据？"}
-          message={lang === "en"
-            ? "This will permanently remove all bookmark tags you've created. This action cannot be undone."
-            : "这将永久删除你创建的所有书签标签。此操作无法撤销。"}
-          confirmLabel={t.settings.clearTags}
-          onConfirm={async () => {
-            await chrome.storage.local.remove("tabmark_bookmark_tags");
-            useTagStore.getState().init();
-            setShowClearConfirm(false);
-          }}
-          onCancel={() => setShowClearConfirm(false)}
-          danger
-        />
-      )}
     </div>
   );
 }

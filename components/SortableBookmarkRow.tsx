@@ -8,7 +8,6 @@ interface SortableBookmarkRowProps {
   query: string;
   selected: boolean;
   onToggleSelect: () => void;
-  tags: string[];
 }
 
 export function SortableBookmarkRow({

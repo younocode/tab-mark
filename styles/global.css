@@ -220,10 +220,6 @@ mark {
 .tm-bm-folder:hover { background: var(--bg-hover); color: var(--fg); }
 .tm-bm-folder.active { background: var(--bg-elev); color: var(--fg); box-shadow: var(--shadow-sm); }
 .tm-bm-folder .count { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-4); }
-.tm-bm-tags { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 8px; }
-.tm-bm-tags .tag-chip { font-size: 11px; padding: 2px 7px; border-radius: 3px; background: var(--bg-elev); border: 1px solid var(--border); color: var(--fg-2); cursor: default; }
-.tm-bm-tags .tag-chip:hover { background: var(--bg-hover); }
-.tm-bm-tags .tag-chip.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent-fg); }
 .tm-bm-main { flex: 1; min-width: 0; padding: 24px 32px 80px; overflow-y: auto; }
 .tm-bm-list { display: flex; flex-direction: column; }
 .tm-bm-row { display: grid; grid-template-columns: 22px 18px 1fr auto auto; gap: 12px; align-items: center; padding: 10px 8px; border-bottom: 1px solid var(--border); border-radius: 0; cursor: pointer; }
@@ -237,10 +233,6 @@ mark {
 .tm-bm-row:hover .b-actions { opacity: 1; }
 .tm-bm-row.dead { opacity: 0.5; }
 .tm-bm-row.dead .b-title { text-decoration: line-through; }
-.tm-bm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
-.tm-bm-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); }
-.tm-bm-card .top { display: flex; align-items: center; gap: 8px; }
-.tm-bm-card .b-title { font-size: 13px; font-weight: 500; color: var(--fg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* ── Checkbox ──────────────────────────────────── */
 .tm-check { width: 14px; height: 14px; border: 1.4px solid var(--border-strong); border-radius: 3px; background: var(--bg-elev); display: inline-flex; align-items: center; justify-content: center; color: transparent; flex-shrink: 0; transition: background .12s, border-color .12s, color .12s, transform .1s; cursor: pointer; }

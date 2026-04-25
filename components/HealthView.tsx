@@ -1,8 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Favicon } from "./Favicon";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { IconClose } from "./icons";
 import { useBookmarkStore } from "../stores/bookmarkStore";
+import { useHealthStore } from "../stores/healthStore";
 import { flattenBookmarks, buildParentPathLookup } from "../utils/bookmarks";
 import type { Translations } from "../utils/i18n";
 import type { HealthResult, DuplicateGroup } from "../types";
@@ -31,27 +32,20 @@ function normalizeUrl(url: string): string {
 export function HealthView({ t }: HealthViewProps) {
   const tree = useBookmarkStore((s) => s.tree);
   const initialized = useBookmarkStore((s) => s.initialized);
-  const [tab, setTab] = useState<"dead" | "duplicates">("dead");
-  const [scanning, setScanning] = useState(false);
-  const [progress, setProgress] = useState({ checked: 0, total: 0 });
-  const [deadLinks, setDeadLinks] = useState<HealthResult[]>([]);
-  const [duplicates, setDuplicates] = useState<DuplicateGroup[]>([]);
+
+  const tab = useHealthStore((s) => s.tab);
+  const scanning = useHealthStore((s) => s.scanning);
+  const progress = useHealthStore((s) => s.progress);
+  const deadLinks = useHealthStore((s) => s.deadLinks);
+  const duplicates = useHealthStore((s) => s.duplicates);
+  const setTab = useHealthStore((s) => s.setTab);
+
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
 
   // Lazy-init bookmarks for health check
   if (!initialized) {
     useBookmarkStore.getState().init();
   }
-
-  useEffect(() => {
-    const listener = (message: { type: string; checked: number; total: number }) => {
-      if (message.type === "HEALTH_PROGRESS") {
-        setProgress({ checked: message.checked, total: message.total });
-      }
-    };
-    chrome.runtime.onMessage.addListener(listener);
-    return () => chrome.runtime.onMessage.removeListener(listener);
-  }, []);
 
   const findDuplicates = useCallback(() => {
     const all = flattenBookmarks(tree);
@@ -75,14 +69,15 @@ export function HealthView({ t }: HealthViewProps) {
         });
       }
     }
-    setDuplicates(dups);
+    useHealthStore.getState().setDuplicates(dups);
   }, [tree]);
 
   const startScan = useCallback(async () => {
+    const store = useHealthStore.getState();
     const all = flattenBookmarks(tree).filter((b) => b.url);
-    setScanning(true);
-    setDeadLinks([]);
-    setProgress({ checked: 0, total: all.length });
+    store.setScanning(true);
+    store.setDeadLinks([]);
+    store.setProgress({ checked: 0, total: all.length });
 
     findDuplicates();
 
@@ -97,42 +92,26 @@ export function HealthView({ t }: HealthViewProps) {
       urls,
     });
 
-    setDeadLinks(
-      results.map((r) => ({ ...r, parentPath: "" })),
-    );
-    setProgress({ checked: all.length, total: all.length });
-    setScanning(false);
+    store.setDeadLinks(results.map((r) => ({ ...r, parentPath: "" })));
+    store.setProgress({ checked: all.length, total: all.length });
+    store.setScanning(false);
   }, [tree, findDuplicates]);
 
   const removeBookmark = useCallback(async (id: string) => {
     await chrome.bookmarks.remove(id);
-    setDeadLinks((prev) => prev.filter((d) => d.bookmarkId !== id));
+    useHealthStore.getState().removeDeadLink(id);
   }, []);
 
   const removeDuplicate = useCallback(async (groupUrl: string, id: string) => {
     await chrome.bookmarks.remove(id);
-    setDuplicates((prev) =>
-      prev
-        .map((g) => {
-          if (g.url !== groupUrl) return g;
-          const idx = g.bookmarkIds.indexOf(id);
-          if (idx === -1) return g;
-          return {
-            ...g,
-            bookmarkIds: g.bookmarkIds.filter((_, i) => i !== idx),
-            paths: g.paths.filter((_, i) => i !== idx),
-            folderPaths: g.folderPaths.filter((_, i) => i !== idx),
-          };
-        })
-        .filter((g) => g.bookmarkIds.length > 1),
-    );
+    useHealthStore.getState().removeDuplicate(groupUrl, id);
   }, []);
 
   const removeAllDead = useCallback(async () => {
     for (const d of deadLinks) {
       await chrome.bookmarks.remove(d.bookmarkId);
     }
-    setDeadLinks([]);
+    useHealthStore.getState().removeAllDead();
   }, [deadLinks]);
 
   const progressPct =
@@ -361,7 +340,7 @@ export function HealthView({ t }: HealthViewProps) {
                           style={{ flexShrink: 0 }}
                           onClick={() => removeDuplicate(g.url, id)}
                         >
-                          {t.health.remove}
+                          <IconClose size={11} />
                         </button>
                       )}
                     </div>
