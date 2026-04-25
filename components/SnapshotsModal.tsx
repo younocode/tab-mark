@@ -10,6 +10,7 @@ interface SnapshotsModalProps {
 
 export function SnapshotsModal({ onClose, t }: SnapshotsModalProps) {
   const [name, setName] = useState("");
+  const [saving, setSaving] = useState(false);
   const snapshots = useSnapshotStore((s) => s.snapshots);
   const save = useSnapshotStore((s) => s.save);
   const restore = useSnapshotStore((s) => s.restore);
@@ -74,11 +75,14 @@ export function SnapshotsModal({ onClose, t }: SnapshotsModalProps) {
               }}
             />
             <button
-              className="tm-btn primary"
-              onClick={() => {
-                if (!name.trim()) return;
-                save(name.trim());
+              className={`tm-btn primary ${saving ? "loading" : ""}`}
+              disabled={saving || !name.trim()}
+              onClick={async () => {
+                if (!name.trim() || saving) return;
+                setSaving(true);
+                await save(name.trim());
                 setName("");
+                setSaving(false);
               }}
             >
               <IconPlus size={11} />

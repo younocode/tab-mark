@@ -101,4 +101,5 @@ export interface DuplicateGroup {
   title: string;
   bookmarkIds: string[];
   paths: string[];
+  folderPaths: string[];
 }

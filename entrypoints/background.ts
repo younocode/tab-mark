@@ -126,6 +126,16 @@ async function runHealthCheck(
   const results: HealthCheckResult[] = [];
   const concurrency = 5;
   let idx = 0;
+  let checked = 0;
+  const total = req.urls.length;
+
+  const sendProgress = () => {
+    chrome.runtime.sendMessage({
+      type: "HEALTH_PROGRESS",
+      checked,
+      total,
+    }).catch(() => {});
+  };
 
   const checkOne = async () => {
     while (idx < req.urls.length) {
@@ -158,6 +168,8 @@ async function runHealthCheck(
           status: isAbort ? "timeout" : "error",
         });
       }
+      checked++;
+      sendProgress();
     }
   };
 

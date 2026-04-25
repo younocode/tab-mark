@@ -1,8 +1,9 @@
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { TopSites } from "./TopSites";
 import { TabCard } from "./TabCard";
 import { GroupHeader } from "./TabGroup";
 import { RecentlyClosedList } from "./RecentlyClosed";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { useTabStore } from "../stores/tabStore";
 import { useTabGroupStore } from "../stores/tabGroupStore";
 import { useSessionStore } from "../stores/sessionStore";
@@ -22,6 +23,11 @@ interface TabsViewProps {
 }
 
 export function TabsView({ query, t, showToast }: TabsViewProps) {
+  const [confirmAction, setConfirmAction] = useState<{
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
   const tabs = useTabStore((s) => s.tabs);
   const closeTab = useTabStore((s) => s.closeTab);
   const activateTab = useTabStore((s) => s.activateTab);
@@ -169,9 +175,14 @@ export function TabsView({ query, t, showToast }: TabsViewProps) {
               showToast({ msg: `Saved ${g.tabs.length} tabs to "${g.name}"` });
             }}
             onCloseAll={() => {
-              g.tabs.forEach((tab) => closeTab(tab.id));
-              showToast({
-                msg: `Closed ${g.tabs.length} tabs in ${g.name}`,
+              setConfirmAction({
+                title: `Close ${g.tabs.length} tabs?`,
+                message: `All tabs in "${g.name}" will be closed. You can restore them from Recently Closed.`,
+                onConfirm: () => {
+                  g.tabs.forEach((tab) => closeTab(tab.id));
+                  showToast({ msg: `Closed ${g.tabs.length} tabs in ${g.name}` });
+                  setConfirmAction(null);
+                },
               });
             }}
           />
@@ -210,6 +221,17 @@ export function TabsView({ query, t, showToast }: TabsViewProps) {
         t={t}
         onRestore={handleRestore}
       />
+
+      {confirmAction && (
+        <ConfirmDialog
+          title={confirmAction.title}
+          message={confirmAction.message}
+          confirmLabel={t.tabs.closeAll}
+          onConfirm={confirmAction.onConfirm}
+          onCancel={() => setConfirmAction(null)}
+          danger
+        />
+      )}
     </div>
   );
 }

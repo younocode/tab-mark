@@ -4,6 +4,7 @@ import { NTPBar } from "../../components/NTPBar";
 import { TopBar } from "../../components/TopBar";
 import { Toast, type ToastData } from "../../components/Toast";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { TabsView } from "../../components/TabsView";
 import { BookmarksView } from "../../components/BookmarksView";
 import { HealthView } from "../../components/HealthView";
@@ -209,6 +210,7 @@ function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
   const groupHeader = usePreferenceStore((s) => s.groupHeader);
   const setPref = usePreferenceStore((s) => s.set);
   const tagData = useTagStore((s) => s.tags);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const [ruleInput, setRuleInput] = useState({ name: "", patterns: "" });
 
@@ -469,15 +471,29 @@ function SettingsView({ t }: { t: ReturnType<typeof getTranslations> }) {
           </button>
           <button
             className="tm-btn sm danger"
-            onClick={async () => {
-              await chrome.storage.local.remove("tabmark_bookmark_tags");
-              useTagStore.getState().init();
-            }}
+            onClick={() => setShowClearConfirm(true)}
           >
             {t.settings.clearTags}
           </button>
         </div>
       </div>
+
+      {showClearConfirm && (
+        <ConfirmDialog
+          title={lang === "en" ? "Clear all tag data?" : "清除所有标签数据？"}
+          message={lang === "en"
+            ? "This will permanently remove all bookmark tags you've created. This action cannot be undone."
+            : "这将永久删除你创建的所有书签标签。此操作无法撤销。"}
+          confirmLabel={t.settings.clearTags}
+          onConfirm={async () => {
+            await chrome.storage.local.remove("tabmark_bookmark_tags");
+            useTagStore.getState().init();
+            setShowClearConfirm(false);
+          }}
+          onCancel={() => setShowClearConfirm(false)}
+          danger
+        />
+      )}
     </div>
   );
 }

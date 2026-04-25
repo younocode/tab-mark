@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Favicon } from "./Favicon";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { IconClose } from "./icons";
 import { useBookmarkStore } from "../stores/bookmarkStore";
-import { flattenBookmarks } from "../utils/bookmarks";
+import { flattenBookmarks, buildParentPathLookup } from "../utils/bookmarks";
 import type { Translations } from "../utils/i18n";
 import type { HealthResult, DuplicateGroup } from "../types";
 
@@ -35,14 +36,26 @@ export function HealthView({ t }: HealthViewProps) {
   const [progress, setProgress] = useState({ checked: 0, total: 0 });
   const [deadLinks, setDeadLinks] = useState<HealthResult[]>([]);
   const [duplicates, setDuplicates] = useState<DuplicateGroup[]>([]);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
 
   // Lazy-init bookmarks for health check
   if (!initialized) {
     useBookmarkStore.getState().init();
   }
 
+  useEffect(() => {
+    const listener = (message: { type: string; checked: number; total: number }) => {
+      if (message.type === "HEALTH_PROGRESS") {
+        setProgress({ checked: message.checked, total: message.total });
+      }
+    };
+    chrome.runtime.onMessage.addListener(listener);
+    return () => chrome.runtime.onMessage.removeListener(listener);
+  }, []);
+
   const findDuplicates = useCallback(() => {
     const all = flattenBookmarks(tree);
+    const getPath = buildParentPathLookup(tree);
     const urlMap = new Map<string, { id: string; title: string; url: string }[]>();
     for (const bm of all) {
       if (!bm.url) continue;
@@ -58,6 +71,7 @@ export function HealthView({ t }: HealthViewProps) {
           title: items[0].title,
           bookmarkIds: items.map((i) => i.id),
           paths: items.map((i) => i.url),
+          folderPaths: items.map((i) => getPath(i.id)),
         });
       }
     }
@@ -95,6 +109,25 @@ export function HealthView({ t }: HealthViewProps) {
     setDeadLinks((prev) => prev.filter((d) => d.bookmarkId !== id));
   }, []);
 
+  const removeDuplicate = useCallback(async (groupUrl: string, id: string) => {
+    await chrome.bookmarks.remove(id);
+    setDuplicates((prev) =>
+      prev
+        .map((g) => {
+          if (g.url !== groupUrl) return g;
+          const idx = g.bookmarkIds.indexOf(id);
+          if (idx === -1) return g;
+          return {
+            ...g,
+            bookmarkIds: g.bookmarkIds.filter((_, i) => i !== idx),
+            paths: g.paths.filter((_, i) => i !== idx),
+            folderPaths: g.folderPaths.filter((_, i) => i !== idx),
+          };
+        })
+        .filter((g) => g.bookmarkIds.length > 1),
+    );
+  }, []);
+
   const removeAllDead = useCallback(async () => {
     for (const d of deadLinks) {
       await chrome.bookmarks.remove(d.bookmarkId);
@@ -123,7 +156,7 @@ export function HealthView({ t }: HealthViewProps) {
           {t.health.subtitle}
         </p>
         <button
-          className="tm-btn primary"
+          className={`tm-btn primary ${scanning ? "loading" : ""}`}
           onClick={startScan}
           disabled={scanning}
         >
@@ -181,7 +214,7 @@ export function HealthView({ t }: HealthViewProps) {
         <div>
           {deadLinks.length > 0 && (
             <div style={{ marginBottom: 12 }}>
-              <button className="tm-btn danger sm" onClick={removeAllDead}>
+              <button className="tm-btn danger sm" onClick={() => setShowDeleteAllConfirm(true)}>
                 {t.health.deleteAll}
               </button>
             </div>
@@ -287,39 +320,71 @@ export function HealthView({ t }: HealthViewProps) {
                   {g.bookmarkIds.length}x
                 </span>
               </div>
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 11,
-                  color: "var(--fg-3)",
-                  marginLeft: 22,
-                }}
-              >
+              <div style={{ marginLeft: 22 }}>
                 {g.bookmarkIds.map((id, i) => (
                   <div
                     key={id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "2px 0",
-                    }}
+                    style={{ padding: "4px 0" }}
                   >
-                    <span>{g.paths[i]}</span>
-                    {i > 0 && (
-                      <button
-                        className="tm-btn ghost sm danger"
-                        onClick={() => removeBookmark(id)}
+                    {g.folderPaths[i] && (
+                      <div
+                        style={{
+                          fontSize: 10.5,
+                          color: "var(--fg-3)",
+                          opacity: 0.7,
+                          marginBottom: 1,
+                        }}
                       >
-                        {t.health.remove}
-                      </button>
+                        {g.folderPaths[i]}
+                      </div>
                     )}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: 11,
+                          color: "var(--fg-3)",
+                          wordBreak: "break-all",
+                        }}
+                      >
+                        {g.paths[i]}
+                      </span>
+                      {i > 0 && (
+                        <button
+                          className="tm-btn ghost sm danger"
+                          style={{ flexShrink: 0 }}
+                          onClick={() => removeDuplicate(g.url, id)}
+                        >
+                          {t.health.remove}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {showDeleteAllConfirm && (
+        <ConfirmDialog
+          title={`Delete ${deadLinks.length} dead links?`}
+          message="These bookmarks point to pages that no longer exist. They will be permanently removed."
+          confirmLabel={t.health.deleteAll}
+          onConfirm={() => {
+            removeAllDead();
+            setShowDeleteAllConfirm(false);
+          }}
+          onCancel={() => setShowDeleteAllConfirm(false)}
+          danger
+        />
       )}
     </div>
   );

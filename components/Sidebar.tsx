@@ -117,6 +117,7 @@ export const Sidebar = memo(function Sidebar({
               style={{
                 justifyContent: collapsed ? "center" : "flex-start",
               }}
+              {...(collapsed ? { "data-tip": it.label } : {})}
             >
               <I size={14} />
               {!collapsed && (

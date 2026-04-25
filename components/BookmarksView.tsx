@@ -14,6 +14,7 @@ import {
 import { FolderTree } from "./FolderTree";
 import { SortableBookmarkRow } from "./SortableBookmarkRow";
 import { BookmarkCard } from "./BookmarkCard";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { IconBookmark, IconTag, IconFolder, IconClose } from "./icons";
 import { useBookmarkStore } from "../stores/bookmarkStore";
 import { useTagStore } from "../stores/tagStore";
@@ -38,6 +39,7 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
   const [selectedBookmarks, setSelectedBookmarks] = useState<string[]>([]);
   const [batchTagInput, setBatchTagInput] = useState("");
   const [showMoveMenu, setShowMoveMenu] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const q = query.replace(/^@all\s*/i, "").trim();
 
@@ -307,7 +309,7 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
                 </>
               )}
             </div>
-            <button className="tm-btn sm danger" onClick={handleBatchDelete}>
+            <button className="tm-btn sm danger" onClick={() => setShowDeleteConfirm(true)}>
               <IconClose size={11} /> {t.bookmarks.remove}
             </button>
             <button
@@ -369,6 +371,20 @@ export function BookmarksView({ query, t }: BookmarksViewProps) {
           </div>
         )}
       </main>
+
+      {showDeleteConfirm && (
+        <ConfirmDialog
+          title={`Delete ${selectedBookmarks.length} bookmarks?`}
+          message="This action cannot be undone. The selected bookmarks will be permanently removed."
+          confirmLabel={t.bookmarks.remove}
+          onConfirm={() => {
+            handleBatchDelete();
+            setShowDeleteConfirm(false);
+          }}
+          onCancel={() => setShowDeleteConfirm(false)}
+          danger
+        />
+      )}
     </div>
   );
 }
