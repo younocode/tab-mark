@@ -119,3 +119,9 @@ export interface DuplicateGroup {
   paths: string[];
   folderPaths: string[];
 }
+
+export interface EmptyFolder {
+  id: string;
+  title: string;
+  path: string;
+}

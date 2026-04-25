@@ -1,11 +1,5 @@
 import { create } from "zustand";
-import type { HealthResult, DuplicateGroup } from "../types";
-
-export interface EmptyFolder {
-  id: string;
-  title: string;
-  path: string;
-}
+import type { HealthResult, DuplicateGroup, EmptyFolder } from "../types";
 
 interface HealthStore {
   scanning: boolean;
