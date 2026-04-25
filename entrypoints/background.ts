@@ -8,7 +8,7 @@ import {
   isSoft404,
   isHtmlResponse,
   DomainThrottle,
-  getDomain,
+  getHost,
   BROWSER_HEADERS,
   parseRetryAfter,
   retryDelay,
@@ -287,7 +287,7 @@ async function runHealthCheck(
     if (resp.status === 429) {
       const delay = parseRetryAfter(resp.headers.get("retry-after"));
       if (delay !== null) {
-        const host = getDomain(item.url);
+        const host = getHost(item.url);
         const expiry = Date.now() + delay * 1000;
         const existing = hostRateLimits.get(host) || 0;
         hostRateLimits.set(host, Math.max(existing, expiry));
@@ -408,7 +408,7 @@ async function runHealthCheck(
         continue;
       }
 
-      const domain = getDomain(item.url);
+      const domain = getHost(item.url);
       await throttle.acquire(domain);
       if (healthCancelled) break;
 

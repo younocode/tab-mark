@@ -9,7 +9,7 @@ import {
   retryDelay,
   isBotProtectionResponse,
   DomainThrottle,
-  getDomain,
+  getHost,
 } from "../linkCheck";
 
 describe("classifyNetworkError", () => {
@@ -209,13 +209,13 @@ describe("isBotProtectionResponse", () => {
   });
 });
 
-describe("getDomain", () => {
+describe("getHost", () => {
   it("extracts hostname from URL", () => {
-    expect(getDomain("https://www.example.com/path")).toBe("www.example.com");
+    expect(getHost("https://www.example.com/path")).toBe("www.example.com");
   });
 
   it("returns original string for invalid URL", () => {
-    expect(getDomain("not-a-url")).toBe("not-a-url");
+    expect(getHost("not-a-url")).toBe("not-a-url");
   });
 });
 
