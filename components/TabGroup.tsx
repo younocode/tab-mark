@@ -1,6 +1,6 @@
 import type { Translations } from "../utils/i18n";
 import { getGroupColorClass, getDomainHue } from "../utils/grouping";
-import { IconClose } from "./icons";
+import { IconChevD, IconChevR, IconClose } from "./icons";
 
 interface GroupHeaderProps {
   name: string;
@@ -10,6 +10,8 @@ interface GroupHeaderProps {
   t: Translations;
   headerStyle: "row" | "card" | "pill";
   onCloseAll: () => void;
+  collapsed?: boolean;
+  onToggle?: () => void;
 }
 
 export function GroupHeader({
@@ -20,6 +22,8 @@ export function GroupHeader({
   t,
   headerStyle,
   onCloseAll,
+  collapsed = false,
+  onToggle,
 }: GroupHeaderProps) {
   const dotStyle =
     mode === "domain"
@@ -31,6 +35,17 @@ export function GroupHeader({
 
   const inner = (
     <>
+      {onToggle && (
+        <button
+          className="tm-btn ghost icon sm tm-group-toggle"
+          onClick={onToggle}
+          aria-label={collapsed ? t.tabs.expandGroup : t.tabs.collapseGroup}
+          aria-expanded={!collapsed}
+          title={collapsed ? t.tabs.expandGroup : t.tabs.collapseGroup}
+        >
+          {collapsed ? <IconChevR size={11} /> : <IconChevD size={11} />}
+        </button>
+      )}
       <div className="tm-group-name">
         <span className={dotClass} style={dotStyle} />
         <span

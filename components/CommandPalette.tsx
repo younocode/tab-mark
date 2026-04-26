@@ -1,20 +1,21 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Favicon } from "./Favicon";
-import { IconSearch, IconExternal, IconClock, IconBookmark, IconSettings } from "./icons";
+import { IconSearch, IconExternal, IconClock, IconBookmark, IconSettings, IconGlobe } from "./icons";
 import { useTabStore } from "../stores/tabStore";
 import { useBookmarkStore } from "../stores/bookmarkStore";
 import { useReadingListStore } from "../stores/readingListStore";
-import { flattenBookmarks } from "../utils/bookmarks";
+import { buildParentPathLookup, flattenBookmarks } from "../utils/bookmarks";
 import { matchesQuery, getDomain } from "../utils/search";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import type { Translations } from "../utils/i18n";
 import type { ToastData } from "./Toast";
 
-export type PaletteAction = "health" | "settings";
+export type PaletteAction = "deadLinks" | "duplicateBookmarks" | "settings";
 
 interface CommandPaletteProps {
   onClose: () => void;
   onAction?: (action: PaletteAction) => void;
+  initialQuery?: string;
   t: Translations;
   showToast: (data: ToastData) => void;
 }
@@ -24,9 +25,11 @@ interface SearchResult {
   title: string;
   url: string;
   domain: string;
-  kind: "tab" | "bookmark" | "readlater" | "history" | "action";
+  kind: "tab" | "bookmark" | "readlater" | "history" | "action" | "web";
   action?: PaletteAction;
   description?: string;
+  folderPath?: string;
+  keywords?: string[];
 }
 
 function IconHealth({ size = 14 }: { size?: number }) {
@@ -49,10 +52,11 @@ function IconHealth({ size = 14 }: { size?: number }) {
 export function CommandPalette({
   onClose,
   onAction,
+  initialQuery = "",
   t,
   showToast,
 }: CommandPaletteProps) {
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(initialQuery);
   const [sel, setSel] = useState(0);
   const [historyResults, setHistoryResults] = useState<SearchResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -60,6 +64,7 @@ export function CommandPalette({
 
   useEffect(() => {
     inputRef.current?.focus();
+    useBookmarkStore.getState().init();
   }, []);
 
   const tabs = useTabStore((s) => s.tabs);
@@ -69,6 +74,11 @@ export function CommandPalette({
 
   const allBookmarks = useMemo(
     () => flattenBookmarks(bookmarkTree),
+    [bookmarkTree],
+  );
+
+  const getBookmarkPath = useMemo(
+    () => buildParentPathLookup(bookmarkTree),
     [bookmarkTree],
   );
 
@@ -92,7 +102,7 @@ export function CommandPalette({
   const bmResults = useMemo(
     () =>
       allBookmarks
-        .filter((b) => matchesQuery(debouncedQ, b.title, b.url))
+        .filter((b) => matchesQuery(debouncedQ, b.title, b.url, getBookmarkPath(b.id)))
         .slice(0, 5)
         .map(
           (b): SearchResult => ({
@@ -101,9 +111,10 @@ export function CommandPalette({
             url: b.url || "",
             domain: b.url ? getDomain(b.url) : "",
             kind: "bookmark",
+            folderPath: getBookmarkPath(b.id),
           }),
         ),
-    [allBookmarks, debouncedQ],
+    [allBookmarks, debouncedQ, getBookmarkPath],
   );
 
   const rlResults = useMemo(
@@ -150,13 +161,24 @@ export function CommandPalette({
   const actionItems = useMemo((): SearchResult[] => {
     const all: SearchResult[] = [
       {
-        id: "action-health",
-        title: t.cmdActions.health,
+        id: "action-dead-links",
+        title: t.cmdActions.deadLinks,
         url: "",
-        domain: t.cmdActions.healthDesc,
+        domain: t.cmdActions.deadLinksDesc,
         kind: "action",
-        action: "health",
-        description: t.cmdActions.healthDesc,
+        action: "deadLinks",
+        description: t.cmdActions.deadLinksDesc,
+        keywords: ["health", "dead", "deadlink", "dead link", "broken", "死链", "失效"],
+      },
+      {
+        id: "action-duplicate-bookmarks",
+        title: t.cmdActions.duplicateBookmarks,
+        url: "",
+        domain: t.cmdActions.duplicateBookmarksDesc,
+        kind: "action",
+        action: "duplicateBookmarks",
+        description: t.cmdActions.duplicateBookmarksDesc,
+        keywords: ["health", "duplicate", "duplicates", "dup", "重复", "重复书签"],
       },
       {
         id: "action-settings",
@@ -173,19 +195,42 @@ export function CommandPalette({
     return all.filter(
       (a) =>
         a.title.toLowerCase().includes(lq) ||
-        a.description!.toLowerCase().includes(lq),
+        a.description!.toLowerCase().includes(lq) ||
+        a.keywords?.some((keyword) => keyword.toLowerCase().includes(lq)),
     );
   }, [t, debouncedQ]);
+
+  const webResults = useMemo((): SearchResult[] => {
+    const query = debouncedQ.trim();
+    if (!query) return [];
+    return [
+      {
+        id: `web-${query}`,
+        title: `${t.search.webSearch} "${query}"`,
+        url: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+        domain: t.search.grpWeb,
+        kind: "web",
+      },
+    ];
+  }, [debouncedQ, t]);
 
   const groups: [string, SearchResult[]][] = [
     [t.search.grpOpen, tabResults],
     [t.search.grpBookmarks, bmResults],
     [t.search.grpReadLater, rlResults],
     [t.search.grpHistory, historyResults],
+    [t.search.grpWeb, webResults],
     ["Actions", actionItems],
   ].filter(([, arr]) => arr.length > 0) as [string, SearchResult[]][];
 
-  const flat = [...tabResults, ...bmResults, ...rlResults, ...historyResults, ...actionItems];
+  const flat = [
+    ...tabResults,
+    ...bmResults,
+    ...rlResults,
+    ...historyResults,
+    ...webResults,
+    ...actionItems,
+  ];
 
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -268,8 +313,10 @@ export function CommandPalette({
                       }}
                     >
                       {it.kind === "action" ? (
-                        it.action === "health" ? <IconHealth size={14} /> :
+                        it.action === "deadLinks" || it.action === "duplicateBookmarks" ? <IconHealth size={14} /> :
                         <IconSettings size={14} />
+                      ) : it.kind === "web" ? (
+                        <IconGlobe size={14} />
                       ) : (
                         <Favicon url={it.url} size={14} />
                       )}
@@ -282,12 +329,21 @@ export function CommandPalette({
                             color: "var(--fg-3)",
                           }}
                         >
-                          {it.domain}
+                          <span title={it.url || it.domain}>
+                            {it.domain}
+                          </span>
+                          {it.kind === "bookmark" && it.folderPath && (
+                            <span title={it.folderPath}>
+                              {" · "}
+                              {it.folderPath}
+                            </span>
+                          )}
                         </div>
                       </div>
                       {it.kind === "tab" && <IconExternal size={11} />}
                       {it.kind === "history" && <IconClock size={11} />}
                       {it.kind === "readlater" && <IconBookmark size={11} />}
+                      {it.kind === "web" && <IconGlobe size={11} />}
                       {it.kind !== "action" && <span className="src">{label}</span>}
                     </div>
                   );

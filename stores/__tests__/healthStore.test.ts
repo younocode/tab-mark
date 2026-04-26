@@ -32,8 +32,6 @@ describe("healthStore", () => {
       progress: { checked: 0, total: 0 },
       deadLinks: [],
       duplicates: [],
-      emptyFolders: [],
-      tab: "dead",
     });
   });
 
@@ -115,43 +113,7 @@ describe("healthStore", () => {
     });
   });
 
-  describe("removeDeadByStatus", () => {
-    it("filters by status string", () => {
-      useHealthStore.setState({
-        deadLinks: [
-          makeDeadLink({ bookmarkId: "1", status: "dead" }),
-          makeDeadLink({ bookmarkId: "2", status: "timeout" }),
-          makeDeadLink({ bookmarkId: "3", status: "dead" }),
-        ],
-      });
-      useHealthStore.getState().removeDeadByStatus("dead");
-      const remaining = useHealthStore.getState().deadLinks;
-      expect(remaining).toHaveLength(1);
-      expect(remaining[0].status).toBe("timeout");
-    });
-  });
-
-  describe("removeEmptyFolder", () => {
-    it("filters by id", () => {
-      useHealthStore.setState({
-        emptyFolders: [
-          { id: "f1", title: "A", path: "A" },
-          { id: "f2", title: "B", path: "B" },
-        ],
-      });
-      useHealthStore.getState().removeEmptyFolder("f1");
-      const remaining = useHealthStore.getState().emptyFolders;
-      expect(remaining).toHaveLength(1);
-      expect(remaining[0].id).toBe("f2");
-    });
-  });
-
   describe("basic setters", () => {
-    it("setTab", () => {
-      useHealthStore.getState().setTab("duplicates");
-      expect(useHealthStore.getState().tab).toBe("duplicates");
-    });
-
     it("setScanning", () => {
       useHealthStore.getState().setScanning(true);
       expect(useHealthStore.getState().scanning).toBe(true);

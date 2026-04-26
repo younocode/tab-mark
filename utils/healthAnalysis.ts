@@ -1,4 +1,4 @@
-import type { BookmarkNode, DuplicateGroup, EmptyFolder } from "../types";
+import type { BookmarkNode, DuplicateGroup } from "../types";
 import { flattenBookmarks, buildParentPathLookup } from "./bookmarks";
 
 export function normalizeUrl(url: string): string {
@@ -16,22 +16,6 @@ export function normalizeUrl(url: string): string {
   } catch {
     return url;
   }
-}
-
-export function findEmptyFolders(tree: BookmarkNode[]): EmptyFolder[] {
-  const results: EmptyFolder[] = [];
-  function walk(nodes: BookmarkNode[], path: string) {
-    for (const n of nodes) {
-      if (n.url) continue;
-      const currentPath = path ? `${path} › ${n.title}` : n.title;
-      if (n.children && n.children.length === 0) {
-        results.push({ id: n.id, title: n.title, path: currentPath });
-      }
-      if (n.children) walk(n.children, currentPath);
-    }
-  }
-  walk(tree, "");
-  return results;
 }
 
 export function findDuplicates(tree: BookmarkNode[]): DuplicateGroup[] {

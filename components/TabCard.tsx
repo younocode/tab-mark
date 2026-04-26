@@ -1,7 +1,7 @@
 import { memo, useState, useRef } from "react";
 import { Favicon } from "./Favicon";
 import { IconClose, IconBookmark } from "./icons";
-import { highlight } from "../utils/search";
+import { getDomain, highlight } from "../utils/search";
 import type { Tab } from "../types";
 
 interface TabCardProps {
@@ -46,6 +46,7 @@ export const TabCard = memo(function TabCard({
   ]
     .filter(Boolean)
     .join(" ");
+  const domain = tab.url ? getDomain(tab.url) : "";
 
   return (
     <div ref={cardRef} className={cls} onClick={() => onOpen(tab)}>
@@ -53,8 +54,8 @@ export const TabCard = memo(function TabCard({
       <span className="tm-tab-title">
         {highlight(tab.title, query)}
       </span>
-      <span className="tm-tab-meta">
-        {tab.url ? new URL(tab.url).hostname.replace(/^www\./, "") : ""}
+      <span className="tm-tab-meta" title={tab.url}>
+        {domain}
       </span>
       {tab.discarded && <span className="tm-pill hib">Zzz</span>}
       {isDuplicate && <span className="tm-pill dup">dup</span>}

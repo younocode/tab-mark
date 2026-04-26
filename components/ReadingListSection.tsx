@@ -53,13 +53,16 @@ export function ReadingListSection({ t }: ReadingListSectionProps) {
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        {visible.map((entry) => (
-          <div
-            key={entry.url}
-            className="tm-rl-item"
-            style={{ opacity: entry.hasBeenRead ? 0.55 : 1 }}
-            onClick={() => chrome.tabs.create({ url: entry.url })}
-          >
+        {visible.map((entry) => {
+          const domain = getDomain(entry.url);
+
+          return (
+            <div
+              key={entry.url}
+              className="tm-rl-item"
+              style={{ opacity: entry.hasBeenRead ? 0.55 : 1 }}
+              onClick={() => chrome.tabs.create({ url: entry.url })}
+            >
             <div
               style={{
                 width: 6,
@@ -88,16 +91,17 @@ export function ReadingListSection({ t }: ReadingListSectionProps) {
                 {entry.title}
               </div>
             </div>
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 10.5,
-                color: "var(--fg-4)",
-                flexShrink: 0,
-              }}
-            >
-              {getDomain(entry.url)}
-            </span>
+              <span
+                title={entry.url}
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 10.5,
+                  color: "var(--fg-4)",
+                  flexShrink: 0,
+                }}
+              >
+                {domain}
+              </span>
             <span
               style={{
                 fontFamily: "var(--font-mono)",
@@ -129,8 +133,9 @@ export function ReadingListSection({ t }: ReadingListSectionProps) {
                 <IconClose size={11} />
               </button>
             </div>
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
       {hasMore && (
         <button

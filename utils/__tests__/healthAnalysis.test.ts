@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizeUrl, findEmptyFolders, findDuplicates } from "../healthAnalysis";
+import { normalizeUrl, findDuplicates } from "../healthAnalysis";
 import { sampleTree, duplicateTree } from "../../test/fixtures/bookmarkTree";
 import type { BookmarkNode } from "../../types";
 
@@ -35,40 +35,6 @@ describe("normalizeUrl", () => {
     const url =
       "https://example.com/page?utm_source=a&utm_medium=b&utm_campaign=c&utm_content=d&utm_term=e&keep=yes";
     expect(normalizeUrl(url)).toBe("https://example.com/page?keep=yes");
-  });
-});
-
-describe("findEmptyFolders", () => {
-  it("finds folders with empty children array", () => {
-    const result = findEmptyFolders(sampleTree);
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("14");
-    expect(result[0].title).toBe("Empty Folder");
-  });
-
-  it("builds path with › separator", () => {
-    const result = findEmptyFolders(sampleTree);
-    expect(result[0].path).toContain("›");
-  });
-
-  it("does not flag folders that contain bookmarks", () => {
-    const result = findEmptyFolders(sampleTree);
-    const ids = result.map((f) => f.id);
-    expect(ids).not.toContain("12"); // Dev folder has children
-    expect(ids).not.toContain("13"); // Tools folder has children
-  });
-
-  it("returns empty array when no empty folders", () => {
-    const tree: BookmarkNode[] = [
-      {
-        id: "0",
-        title: "",
-        children: [
-          { id: "1", title: "Folder", children: [{ id: "2", title: "Bookmark", url: "https://a.com", parentId: "1" }], parentId: "0" },
-        ],
-      },
-    ];
-    expect(findEmptyFolders(tree)).toEqual([]);
   });
 });
 

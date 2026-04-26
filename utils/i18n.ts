@@ -12,6 +12,10 @@ export interface Translations {
   cmdActions: {
     health: string;
     healthDesc: string;
+    deadLinks: string;
+    deadLinksDesc: string;
+    duplicateBookmarks: string;
+    duplicateBookmarksDesc: string;
     settings: string;
     settingsDesc: string;
   };
@@ -26,9 +30,14 @@ export interface Translations {
     grpBookmarks: string;
     grpReadLater: string;
     grpHistory: string;
+    grpWeb: string;
+    webSearch: string;
+    clear: string;
   };
   tabs: {
     topSites: string;
+    groups: string;
+    recentTabs: string;
     groupCount: (n: number) => string;
     hibernated: string;
     hibernate: string;
@@ -40,6 +49,8 @@ export interface Translations {
     showLess: string;
     duplicate: string;
     closeDuplicates: string;
+    collapseGroup: string;
+    expandGroup: string;
   };
   bookmarks: {
     all: string;
@@ -91,7 +102,13 @@ export interface Translations {
   health: {
     title: string;
     subtitle: string;
+    deadTitle: string;
+    deadSubtitle: string;
+    duplicatesTitle: string;
+    duplicatesSubtitle: string;
     start: string;
+    startDead: string;
+    startDuplicates: string;
     scanning: string;
     checked: (a: number, b: number) => string;
     dead: string;
@@ -108,8 +125,6 @@ export interface Translations {
     warn: string;
     confirmed: string;
     statusLabels: Record<string, string>;
-    emptyFolders: string;
-    noEmptyFolders: string;
     emptyFolderCount: (n: number) => string;
   };
   contextMenu: {
@@ -161,6 +176,10 @@ const STRINGS: Record<string, Translations> = {
     cmdActions: {
       health: "Health Check",
       healthDesc: "Scan bookmarks for dead links",
+      deadLinks: "Check dead links",
+      deadLinksDesc: "Scan bookmarks for broken or suspicious URLs",
+      duplicateBookmarks: "Check duplicate bookmarks",
+      duplicateBookmarksDesc: "Find repeated bookmark URLs",
       settings: "Settings",
       settingsDesc: "Theme, layout, preferences",
     },
@@ -175,9 +194,14 @@ const STRINGS: Record<string, Translations> = {
       grpBookmarks: "Bookmarks",
       grpReadLater: "Reading list",
       grpHistory: "Recently visited",
+      grpWeb: "Web",
+      webSearch: "Search web for",
+      clear: "Clear",
     },
     tabs: {
       topSites: "Frequent",
+      groups: "Groups",
+      recentTabs: "Recent tabs",
       groupCount: (n) => `${n} tab${n === 1 ? "" : "s"}`,
       hibernated: "Hibernated",
       hibernate: "Hibernate",
@@ -189,6 +213,8 @@ const STRINGS: Record<string, Translations> = {
       showLess: "Show less",
       duplicate: "Duplicate",
       closeDuplicates: "Close duplicates",
+      collapseGroup: "Collapse group",
+      expandGroup: "Expand group",
     },
     bookmarks: {
       all: "All bookmarks",
@@ -226,7 +252,7 @@ const STRINGS: Record<string, Translations> = {
     },
     ntp: {
       tagline: "Tabs · Bookmarks · One home",
-      googlePlaceholder: "Search Google or type a URL",
+      googlePlaceholder: "Search tabs, bookmarks, actions, or the web",
     },
     readlater: {
       unread: "Unread",
@@ -240,7 +266,13 @@ const STRINGS: Record<string, Translations> = {
     health: {
       title: "Bookmark health",
       subtitle: "Find dead links and duplicates",
+      deadTitle: "Dead link check",
+      deadSubtitle: "Scan bookmarks for broken, unreachable, or suspicious URLs.",
+      duplicatesTitle: "Duplicate bookmark check",
+      duplicatesSubtitle: "Find repeated bookmark URLs and remove duplicate entries.",
       start: "Start scan",
+      startDead: "Check dead links",
+      startDuplicates: "Check duplicates",
       scanning: "Scanning…",
       checked: (a, b) => `${a} of ${b} checked`,
       dead: "Dead links",
@@ -269,8 +301,6 @@ const STRINGS: Record<string, Translations> = {
         invalid: "Invalid URL",
         unknown: "Unknown",
       },
-      emptyFolders: "Empty folders",
-      noEmptyFolders: "No empty folders found.",
       emptyFolderCount: (n) => `${n} empty`,
     },
     contextMenu: {
@@ -320,6 +350,10 @@ const STRINGS: Record<string, Translations> = {
     cmdActions: {
       health: "健康检查",
       healthDesc: "扫描书签中的死链",
+      deadLinks: "检查死链",
+      deadLinksDesc: "扫描书签中的失效或可疑链接",
+      duplicateBookmarks: "检查重复书签",
+      duplicateBookmarksDesc: "查找重复收藏的书签链接",
       settings: "设置",
       settingsDesc: "主题、布局、偏好",
     },
@@ -334,9 +368,14 @@ const STRINGS: Record<string, Translations> = {
       grpBookmarks: "已收藏",
       grpReadLater: "稍后读",
       grpHistory: "最近浏览",
+      grpWeb: "网页",
+      webSearch: "网页搜索",
+      clear: "清除",
     },
     tabs: {
       topSites: "常用",
+      groups: "分组",
+      recentTabs: "最近标签",
       groupCount: (n) => `${n} 个标签`,
       hibernated: "已休眠",
       hibernate: "休眠",
@@ -348,6 +387,8 @@ const STRINGS: Record<string, Translations> = {
       showLess: "收起",
       duplicate: "重复",
       closeDuplicates: "关闭重复",
+      collapseGroup: "折叠分组",
+      expandGroup: "展开分组",
     },
     bookmarks: {
       all: "全部书签",
@@ -385,7 +426,7 @@ const STRINGS: Record<string, Translations> = {
     },
     ntp: {
       tagline: "标签 · 书签 · 同一主页",
-      googlePlaceholder: "搜索 Google 或输入网址",
+      googlePlaceholder: "搜索标签、书签、动作或网页",
     },
     readlater: {
       unread: "未读",
@@ -399,7 +440,13 @@ const STRINGS: Record<string, Translations> = {
     health: {
       title: "书签健康",
       subtitle: "查找死链与重复书签",
+      deadTitle: "检查死链",
+      deadSubtitle: "扫描书签中的失效、无法访问或可疑链接。",
+      duplicatesTitle: "检查重复书签",
+      duplicatesSubtitle: "查找重复收藏的书签链接，并删除多余条目。",
       start: "开始扫描",
+      startDead: "检查死链",
+      startDuplicates: "检查重复书签",
       scanning: "扫描中…",
       checked: (a, b) => `已检查 ${a} / ${b}`,
       dead: "死链",
@@ -428,8 +475,6 @@ const STRINGS: Record<string, Translations> = {
         invalid: "无效链接",
         unknown: "未知",
       },
-      emptyFolders: "空文件夹",
-      noEmptyFolders: "未发现空文件夹。",
       emptyFolderCount: (n) => `${n} 个空文件夹`,
     },
     contextMenu: {

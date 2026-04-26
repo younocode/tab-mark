@@ -9,7 +9,7 @@ export const Favicon = memo(function Favicon({
   size?: number;
   radius?: number;
 }) {
-  const domain = url ? new URL(url).hostname.replace(/^www\./, "") : "";
+  const domain = url ? new URL(url).hostname : "";
   const letter = domain[0]?.toUpperCase() || "?";
 
   const faviconUrl = url

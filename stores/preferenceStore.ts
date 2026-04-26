@@ -39,7 +39,11 @@ export const usePreferenceStore = create<PreferenceStore>((setState, getState) =
     const result = await chrome.storage.local.get(STORAGE_KEY);
     const saved = result[STORAGE_KEY] as Partial<UserPreferences> | undefined;
     if (saved) {
-      if (saved.defaultView === ("tabs" as string) || saved.defaultView === ("readlater" as string)) {
+      if (
+        saved.defaultView === ("tabs" as string) ||
+        saved.defaultView === ("readlater" as string) ||
+        saved.defaultView === ("bookmarks" as string)
+      ) {
         saved.defaultView = "home";
       }
       setState(saved);

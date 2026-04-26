@@ -32,21 +32,6 @@ function Icon({
   );
 }
 
-export function IconTabs(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <>
-          <rect x="2" y="3" width="12" height="10" rx="1.6" />
-          <path d="M2 6h12" />
-          <path d="M5 3v3" />
-        </>
-      }
-    />
-  );
-}
-
 export function IconBookmark(p: IconProps & { filled?: boolean }) {
   const { filled, ...rest } = p;
   return (
@@ -110,34 +95,6 @@ export function IconChevD(p: IconProps) {
   return <Icon {...p} d={<path d="M3 6l5 5 5-5" />} />;
 }
 
-export function IconMore(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <>
-          <circle cx="3.5" cy="8" r="1" fill="currentColor" />
-          <circle cx="8" cy="8" r="1" fill="currentColor" />
-          <circle cx="12.5" cy="8" r="1" fill="currentColor" />
-        </>
-      }
-    />
-  );
-}
-
-export function IconHibernate(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <>
-          <path d="M3 4h4l-4 4h4M9 8h4l-4 4h4" />
-        </>
-      }
-    />
-  );
-}
-
 export function IconRestore(p: IconProps) {
   return (
     <Icon
@@ -181,17 +138,6 @@ export function IconClock(p: IconProps) {
   );
 }
 
-export function IconStar(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <path d="M8 2l1.7 3.7 4 .5-3 2.8.8 4-3.5-2.1-3.5 2.1.8-4-3-2.8 4-.5z" />
-      }
-    />
-  );
-}
-
 export function IconFolder(p: IconProps) {
   return (
     <Icon
@@ -203,64 +149,8 @@ export function IconFolder(p: IconProps) {
   );
 }
 
-export function IconTag(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <>
-          <path d="M2.5 8.5l6 6 6-6-6-6h-6z" />
-          <circle cx="5.5" cy="5.5" r=".7" fill="currentColor" />
-        </>
-      }
-    />
-  );
-}
-
 export function IconCheck(p: IconProps) {
   return <Icon {...p} d={<path d="M3 8.5L6.5 12l6.5-7" />} />;
-}
-
-export function IconPlus(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <>
-          <path d="M8 3v10M3 8h10" />
-        </>
-      }
-    />
-  );
-}
-
-export function IconEdit(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <>
-          <path d="M11.5 2.5l2 2-7 7H4.5v-2z" />
-          <path d="M10 4l2 2" />
-          <path d="M4 13.5h8" />
-        </>
-      }
-    />
-  );
-}
-
-export function IconCopy(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <>
-          <rect x="5.5" y="5.5" width="8" height="8" rx="1.2" />
-          <path d="M10.5 5.5V3.3a.8.8 0 0 0-.8-.8H3.3a.8.8 0 0 0-.8.8v6.4a.8.8 0 0 0 .8.8h2.2" />
-        </>
-      }
-    />
-  );
 }
 
 export function IconGlobe(p: IconProps) {
@@ -314,16 +204,3 @@ export function IconTrash(p: IconProps) {
   );
 }
 
-export function IconFolderOpen(p: IconProps) {
-  return (
-    <Icon
-      {...p}
-      d={
-        <>
-          <path d="M2 4.5V12h11L14.5 6.5H5.5L4.5 4.5H2z" />
-          <path d="M2 4.5V3h4l1.5 1.5" />
-        </>
-      }
-    />
-  );
-}

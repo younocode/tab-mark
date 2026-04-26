@@ -5,7 +5,6 @@ import type { Translations } from "../utils/i18n";
 export function SettingsView({ t }: { t: Translations }) {
   const theme = usePreferenceStore((s) => s.theme);
   const lang = usePreferenceStore((s) => s.lang);
-  const defaultView = usePreferenceStore((s) => s.defaultView);
   const topSitesStyle = usePreferenceStore((s) => s.topSitesStyle);
   const topSitesCount = usePreferenceStore((s) => s.topSitesCount);
   const density = usePreferenceStore((s) => s.density);
@@ -54,19 +53,6 @@ export function SettingsView({ t }: { t: Translations }) {
                   onClick={() => setPref("lang", v)}
                 >
                   {v === "en" ? "English" : "中文"}
-                </button>
-              ))}
-            </div>
-          </SettingRow>
-          <SettingRow label={t.settings.defaultView}>
-            <div className="tm-segmented">
-              {(["home", "bookmarks"] as const).map((v) => (
-                <button
-                  key={v}
-                  className={defaultView === v ? "active" : ""}
-                  onClick={() => setPref("defaultView", v)}
-                >
-                  {v === "home" ? t.nav.home : t.nav.bookmarks}
                 </button>
               ))}
             </div>

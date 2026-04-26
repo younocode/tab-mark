@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { HeaderBar } from "../../components/HeaderBar";
 import { NTPBar } from "../../components/NTPBar";
 import { Toast, type ToastData } from "../../components/Toast";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
 import { HomeView } from "../../components/HomeView";
-import { BookmarksView } from "../../components/BookmarksView";
-import { HealthView } from "../../components/HealthView";
+import { DeadLinksHealthView } from "../../components/DeadLinksHealthView";
+import { DuplicateBookmarksHealthView } from "../../components/DuplicateBookmarksHealthView";
 import { SettingsView } from "../../components/SettingsView";
 import { PanelModal } from "../../components/PanelModal";
 import { CommandPalette, type PaletteAction } from "../../components/CommandPalette";
@@ -18,22 +17,17 @@ import { useBookmarkStore } from "../../stores/bookmarkStore";
 import { useReadingListStore } from "../../stores/readingListStore";
 import { useTheme } from "../../hooks/useTheme";
 import { getTranslations } from "../../utils/i18n";
-import type { ViewId } from "../../types";
-import { flattenBookmarks } from "../../utils/bookmarks";
 
 export default function App() {
-  const defaultView = usePreferenceStore((s) => s.defaultView);
-  const [view, setView] = useState<ViewId>(defaultView);
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState<ToastData | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [healthModalOpen, setHealthModalOpen] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState("");
+  const [healthModal, setHealthModal] = useState<"dead" | "duplicates" | null>(null);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const theme = usePreferenceStore((s) => s.theme);
   const lang = usePreferenceStore((s) => s.lang);
-  const tabs = useTabStore((s) => s.tabs);
-  const bookmarkTree = useBookmarkStore((s) => s.tree);
 
   useTheme(theme);
   const t = getTranslations(lang);
@@ -50,10 +44,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (view === "bookmarks" || healthModalOpen) {
+    if (healthModal) {
       useBookmarkStore.getState().init();
     }
-  }, [view, healthModalOpen]);
+  }, [healthModal]);
 
   useEffect(() => {
     const refresh = () => useSessionStore.getState().refresh();
@@ -66,6 +60,7 @@ export default function App() {
       const meta = e.metaKey || e.ctrlKey;
       if (meta && e.key.toLowerCase() === "k") {
         e.preventDefault();
+        setPaletteQuery("");
         setPaletteOpen(true);
       } else if (e.key === "Escape") {
         setQuery("");
@@ -76,14 +71,6 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const handleSetView = useCallback(
-    (v: ViewId) => {
-      setView(v);
-      setQuery("");
-    },
-    [],
-  );
-
   const showToast = useCallback((data: ToastData) => {
     setToast(data);
   }, []);
@@ -91,42 +78,28 @@ export default function App() {
   const dismissToast = useCallback(() => setToast(null), []);
 
   const handlePaletteAction = useCallback((action: PaletteAction) => {
-    if (action === "health") setHealthModalOpen(true);
+    if (action === "deadLinks") setHealthModal("dead");
+    else if (action === "duplicateBookmarks") setHealthModal("duplicates");
     else if (action === "settings") setSettingsModalOpen(true);
   }, []);
 
-  const bookmarkCount = flattenBookmarks(bookmarkTree).length;
+  const openPalette = useCallback((initialQuery = "") => {
+    setPaletteQuery(initialQuery);
+    setPaletteOpen(true);
+  }, []);
 
   return (
     <>
       <div className="tm-app">
-        <HeaderBar
-          view={view}
-          setView={handleSetView}
-          onOpenPalette={() => setPaletteOpen(true)}
-          t={t}
-          tabCount={tabs.length}
-          bookmarkCount={bookmarkCount}
-        />
         <main className="tm-main">
-          {view === "home" && <NTPBar t={t} />}
+          <NTPBar t={t} onSearch={openPalette} />
           <ErrorBoundary>
-            {view === "home" && (
-              <HomeView
-                query={query}
-                setQuery={setQuery}
-                t={t}
-                showToast={showToast}
-              />
-            )}
-            {view === "bookmarks" && (
-              <BookmarksView
-                query={query}
-                setQuery={setQuery}
-                t={t}
-                showToast={showToast}
-              />
-            )}
+            <HomeView
+              query={query}
+              setQuery={setQuery}
+              t={t}
+              showToast={showToast}
+            />
           </ErrorBoundary>
         </main>
       </div>
@@ -135,17 +108,27 @@ export default function App() {
         <CommandPalette
           onClose={() => setPaletteOpen(false)}
           onAction={handlePaletteAction}
+          initialQuery={paletteQuery}
           t={t}
           showToast={showToast}
         />
       )}
 
-      {healthModalOpen && (
+      {healthModal === "dead" && (
         <PanelModal
-          title={t.health.title}
-          onClose={() => setHealthModalOpen(false)}
+          title={t.health.deadTitle}
+          onClose={() => setHealthModal(null)}
         >
-          <HealthView t={t} />
+          <DeadLinksHealthView t={t} />
+        </PanelModal>
+      )}
+
+      {healthModal === "duplicates" && (
+        <PanelModal
+          title={t.health.duplicatesTitle}
+          onClose={() => setHealthModal(null)}
+        >
+          <DuplicateBookmarksHealthView t={t} />
         </PanelModal>
       )}
 

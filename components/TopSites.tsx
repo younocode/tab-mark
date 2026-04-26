@@ -43,7 +43,7 @@ export const TopSites = memo(function TopSites({
     return (
       <div className="tm-topsites">
         {sites.map((s) => {
-          const domain = new URL(s.url).hostname.replace(/^www\./, "");
+          const domain = new URL(s.url).hostname;
           return (
             <button
               key={s.url}
@@ -52,7 +52,7 @@ export const TopSites = memo(function TopSites({
             >
               <Favicon url={s.url} size={18} radius={4} />
               <span className="ts-title">{s.title}</span>
-              <span className="ts-domain">{domain}</span>
+              <span className="ts-domain" title={s.url}>{domain}</span>
             </button>
           );
         })}

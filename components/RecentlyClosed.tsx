@@ -31,7 +31,7 @@ export function RecentlyClosedList({
   const visible = tabItems.slice(0, expanded ? 20 : 5);
 
   return (
-    <div className="tm-section" style={{ marginTop: 32 }}>
+    <div className="tm-section">
       <div className="tm-section-hd">
         <h2>{t.tabs.recentlyClosed}</h2>
         <span className="meta">{tabItems.length}</span>
@@ -39,14 +39,13 @@ export function RecentlyClosedList({
       <div className="tm-rc-list">
         {visible.map((rc) => {
           const tab = rc.tab!;
+          const domain = tab.url ? new URL(tab.url).hostname : "";
           return (
             <div key={rc.sessionId || tab.tabId} className="tm-rc-item">
               <Favicon url={tab.url} size={14} />
               <span className="tm-tab-title">{tab.title}</span>
-              <span className="tm-tab-meta">
-                {tab.url
-                  ? new URL(tab.url).hostname.replace(/^www\./, "")
-                  : ""}
+              <span className="tm-tab-meta" title={tab.url}>
+                {domain}
               </span>
               <span className="tm-rc-time">
                 {formatTime(rc.lastModified, t)}

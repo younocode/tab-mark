@@ -50,7 +50,7 @@ function buildDomainGroups(tabs: Tab[]): DisplayGroup[] {
   for (const tab of tabs) {
     let domain: string;
     try {
-      domain = new URL(tab.url).hostname.replace(/^www\./, "");
+      domain = new URL(tab.url).hostname;
     } catch {
       domain = "other";
     }

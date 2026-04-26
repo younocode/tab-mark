@@ -250,7 +250,7 @@ export default defineContentScript({
 
     function getDomain(url: string): string {
       try {
-        return new URL(url).hostname.replace(/^www\./, "");
+        return new URL(url).hostname;
       } catch {
         return "";
       }
