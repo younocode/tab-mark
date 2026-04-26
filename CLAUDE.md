@@ -36,7 +36,6 @@ types/
 public/
   icon/             # Extension icons
 docs/               # Architecture & development docs
-design_handoff_tabmark/  # Design reference files (read-only)
 ```
 
 ## Architecture Decisions

@@ -15,39 +15,41 @@
 - [x] docs/development-guide.md
 - [x] docs/phase1-checklist.md
 
-## Foundation (Step 3)
+## Foundation
 - [ ] Design tokens in global.css (OKLCH light/dark)
 - [ ] TypeScript type definitions
-- [ ] Icon components (22 SVG icons)
+- [ ] Icon components
 - [ ] Favicon component (MV3 + letter fallback)
 - [ ] TabMarkLogo + daily doodles
 - [ ] i18n translation system
 
-## Zustand Stores (Step 4)
+## Zustand Stores
 - [ ] preferenceStore
 - [ ] tabStore
 - [ ] tabGroupStore
 - [ ] sessionStore
 - [ ] topSitesStore
 - [ ] bookmarkStore (lazy)
+- [ ] readingListStore (where supported)
 
-## Layout (Step 5)
-- [ ] Sidebar
+## App Shell
+- [ ] HeaderBar
 - [ ] NTPBar
-- [ ] TopBar
 - [ ] Toast
-- [ ] App shell with view routing
+- [ ] App shell with `home | bookmarks` view routing
+- [ ] PanelModal
 
-## Tabs View (Step 6)
+## Home Workspace
+- [ ] HomeView container
 - [ ] TopSites
+- [ ] ReadingListSection
 - [ ] TabCard
 - [ ] TabGroup with GroupHeader
 - [ ] RecentlyClosed
-- [ ] TabsView container
+- [ ] Duplicate tab action
 - [ ] grouping.ts utility
-- [ ] favicon.ts utility
 
-## Bookmarks View (Step 7)
+## Bookmarks View
 - [ ] FolderTree
 - [ ] BookmarkRow
 - [ ] BookmarkCard
@@ -55,22 +57,24 @@
 - [ ] bookmarks.ts utility
 - [ ] search.ts utility
 
-## CommandPalette (Step 8)
+## Overlays And Panels
 - [ ] CommandPalette overlay
+- [ ] HealthView inside PanelModal
+- [ ] SettingsView inside PanelModal
 - [ ] useKeyboardNav hook
 - [ ] useDebouncedValue hook
-- [ ] Keyboard shortcuts (⌘K, Escape)
+- [ ] Keyboard shortcuts (Cmd+K, Escape)
 
-## Theme System (Step 9)
+## Theme System
 - [ ] useTheme hook
 - [ ] System/light/dark detection
-- [ ] Theme toggle in UI
+- [ ] Theme toggle in Settings Panel
 
-## Background Worker (Step 10)
+## Background Worker
 - [ ] onInstalled default preferences
 - [ ] Message routing infrastructure
 
-## Integration (Step 11)
+## Integration
 - [ ] Error boundaries
 - [ ] Performance optimizations (React.memo, selectors)
 - [ ] End-to-end testing

@@ -8,17 +8,17 @@
 │  ┌──────────────────┐  ┌──────────────────────────┐ │
 │  │  Background SW    │  │  New Tab Page (newtab/)   │ │
 │  │  - onInstalled    │  │  ┌────────────────────┐  │ │
-│  │  - default prefs  │  │  │     React App       │  │ │
-│  │                   │  │  │  ┌──────┐ ┌──────┐  │  │ │
-│  │                   │  │  │  │Sidebar│ │Views │  │  │ │
-│  │                   │  │  │  └──────┘ └──────┘  │  │ │
-│  │                   │  │  │  ┌──────────────┐   │  │ │
-│  │                   │  │  │  │Zustand Stores│   │  │ │
-│  │                   │  │  │  └──────┬───────┘   │  │ │
-│  │                   │  │  │         │           │  │ │
-│  │                   │  │  │  ┌──────▼───────┐   │  │ │
-│  │                   │  │  │  │ Chrome APIs   │   │  │ │
-│  │                   │  │  │  └──────────────┘   │  │ │
+│  │  - message route  │  │  │     React App       │  │ │
+│  │                   │  │  │  HeaderBar          │  │ │
+│  │                   │  │  │  Home/Bookmarks     │  │ │
+│  │                   │  │  │  PanelModal         │  │ │
+│  │                   │  │  │  CommandPalette     │  │ │
+│  │                   │  │  └────────┬───────────┘  │ │
+│  │                   │  │  ┌────────▼───────────┐  │ │
+│  │                   │  │  │  Zustand Stores     │  │ │
+│  │                   │  │  └────────┬───────────┘  │ │
+│  │                   │  │  ┌────────▼───────────┐  │ │
+│  │                   │  │  │   Chrome APIs       │  │ │
 │  │                   │  │  └────────────────────┘  │ │
 │  └──────────────────┘  └──────────────────────────┘ │
 └─────────────────────────────────────────────────────┘
@@ -28,17 +28,24 @@
 
 ```
 App
-├── Sidebar              # Navigation + logo + badges
-├── NTPBar / TopBar      # Context-dependent header
-│   ├── NTPBar           # Tabs view: doodle + Google search
-│   └── TopBar           # Other views: search bar + actions
+├── HeaderBar             # Brand, Home/Bookmarks switch, global search trigger
+├── NTPBar                # Compact Home hero with doodle/wordmark
 ├── View (conditional)
-│   ├── TabsView         # Tabs + groups + top sites + recently closed
-│   ├── BookmarksView    # Folder tree + bookmark list/grid
-│   └── (future views)
-├── CommandPalette       # ⌘K global search overlay
-└── Toast                # Bottom notification bar
+│   ├── HomeView          # Home workspace: reading, tabs, groups, closed tabs
+│   └── BookmarksView     # Bookmark folder/tag filtering + list/grid
+├── CommandPalette        # Cmd+K overlay for search and actions
+├── PanelModal            # Lightweight modal shell
+│   ├── HealthView        # Bookmark health content
+│   └── SettingsView      # Preferences content
+└── Toast                 # Bottom notification bar
 ```
+
+## Product Model
+
+- Route-level views are `home | bookmarks`.
+- `health` and `settings` are panel actions opened through `PanelModal`.
+- `CommandPalette` is an overlay, not a page.
+- Home is the default new-tab workspace; Bookmarks is the secondary organization view.
 
 ## Data Flow
 
@@ -48,10 +55,10 @@ Chrome Events → Zustand Store → React Components (one-way)
      └────────── User Actions ────────────┘
 ```
 
-- Chrome API events (onCreated, onRemoved, etc.) update Zustand stores
-- React components subscribe to stores via selectors
-- User actions dispatch store methods which call Chrome APIs
-- Chrome APIs trigger events → stores update → React re-renders
+- Chrome API events update Zustand stores.
+- React components subscribe to stores via selectors.
+- User actions dispatch store methods which call Chrome APIs.
+- Chrome APIs trigger events, stores update, and React re-renders.
 
 ## Store Architecture
 
@@ -64,11 +71,12 @@ Each store is independent and maps to one Chrome API domain:
 | tabGroupStore | chrome.tabGroups | Eager (parallel) |
 | sessionStore | chrome.sessions | Eager (parallel) |
 | topSitesStore | chrome.topSites | Eager (parallel) |
-| bookmarkStore | chrome.bookmarks | Lazy (on navigate) |
+| readingListStore | chrome.readingList | Eager where supported |
+| bookmarkStore | chrome.bookmarks | Lazy (Bookmarks view or Health panel) |
 
 ## Theme Strategy
 
-- CSS custom properties defined in `:root` (light) and `[data-theme="dark"]`
-- Theme preference stored in preferenceStore
-- `system` mode listens to `matchMedia('(prefers-color-scheme: dark)')`
-- All components reference `var(--*)` tokens — never hardcode colors
+- CSS custom properties defined in `:root` (light) and `[data-theme="dark"]`.
+- Theme preference is stored in preferenceStore.
+- `system` mode listens to `matchMedia('(prefers-color-scheme: dark)')`.
+- Components reference `var(--*)` tokens for colors.
